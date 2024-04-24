@@ -10,12 +10,12 @@ void DistanceSensor::setup(uint8_t trigger_pin, uint8_t echo_pin) {
 }
 
 void DistanceSensor::swap_buf() {
-        dist_data *temp = dist_rec;
-        dist_rec = dist_save;
-        dist_save = temp;
+        dist_data *temp = rec;
+        rec = save;
+        save = temp;
 }
 
-Sample_Success DistanceSensor::sample(const uint8_t period_ms) {
+Sample_Success DistanceSensor::sample() {
     static uint32_t i = 0;
     uint32_t current_time = millis();
     Sample_Success result = A_SAMPLE;
@@ -36,9 +36,8 @@ Sample_Success DistanceSensor::sample(const uint8_t period_ms) {
     distance = pulseIn(echo, HIGH, 100000);
     distance *= 0.343 / 2;
 
-    dist_rec[i] = {current_time, distance};
+    rec[i] = {current_time, distance};
     i += 1;
-    vTaskDelay(period_ms / portTICK_PERIOD_MS);
     return result;
     
     
