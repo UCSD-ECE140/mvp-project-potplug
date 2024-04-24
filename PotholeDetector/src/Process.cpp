@@ -12,7 +12,10 @@ uint8_t process_distance(DistanceSensor ds)
         current_distance = ds.save[i].distance;
         difference = current_distance > last_distance ? current_distance - last_distance : last_distance - current_distance;
         if (difference > cutoff)
-        {
+        {   
+            Serial.println(current_distance);
+            Serial.println(last_distance);
+            Serial.println(difference);
             pothole_flag = 1;
         }
         last_distance = current_distance;

@@ -26,7 +26,7 @@ struct GyroSensor
   Adafruit_MPU6050 gyro;
 
   void setup();
-  Sample_Success sample();
+  Sample_Success sample(const uint8_t period_ms);
   void swap_buf();
 
   gyro_data dist_buf_1[SAMPLE_SIZE];

@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "Sampling.h"
+#include "Process.h"
 
 #ifndef DISTANCE_H
 #define DISTANCE_H
@@ -18,10 +19,12 @@ struct DistanceSensor {
     dist_data *rec = dist_buf_1;
     dist_data *save = dist_buf_2;
 
-    uint8_t data_ready = false;
+    uint8_t pothole_flag = 0;
+    uint8_t process_flag = 0;
+
 
     void swap_buf();
-    Sample_Success sample();
+    Sample_Success sample(const uint8_t period_ms);
     void setup(uint8_t trigger_pin, uint8_t echo_pin);
 };
 
