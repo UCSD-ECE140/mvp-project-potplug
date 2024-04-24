@@ -13,14 +13,13 @@ uint8_t process_distance(DistanceSensor ds)
         difference = current_distance > last_distance ? current_distance - last_distance : last_distance - current_distance;
         if (difference > cutoff)
         {   
-            Serial.println(current_distance);
-            Serial.println(last_distance);
-            Serial.println(difference);
             pothole_flag = 1;
+            break;
         }
         last_distance = current_distance;
+        // Serial.println(current_distance);
     }
-    if (pothole_flag)
+    if (pothole_flag == 1)
     {
         Serial.println("Potential pothole!");
     }

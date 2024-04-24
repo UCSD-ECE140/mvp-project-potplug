@@ -29,14 +29,14 @@ Sample_Success DistanceSensor::sample(const uint8_t period_ms)
         i = 0;
         result = BUF_FULL;
     }
-    // do some sampling
+
     uint32_t distance;
     taskENTER_CRITICAL(&port);
     digitalWrite(trigger, HIGH);
     delayMicroseconds(2);
     digitalWrite(trigger, LOW);
+    distance = pulseIn(echo, HIGH, 10000000);
     taskEXIT_CRITICAL(&port);
-    distance = pulseIn(echo, HIGH, 100000);
     distance *= 0.343 / 2;
 
     rec[i] = {current_time, distance};
