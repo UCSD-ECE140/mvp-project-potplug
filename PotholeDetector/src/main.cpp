@@ -7,7 +7,7 @@ const uint8_t trig_pin = 33;
 const uint8_t echo_pin = 32;
 
 static DistanceSensor d_sensor;
-// static GyroSensor g_sensor;
+static GyroSensor g_sensor;
 TaskHandle_t *distance_task;
 TaskHandle_t *gyro_task;
 
@@ -18,18 +18,18 @@ void process(void *p)
 {
     while (1)
     {
-        if(xSemaphoreTake(data_process, 0) == pdTRUE) {
-            process_distance(d_sensor);
-        } 
+        if(uxSemaphoreGetCount(data_process) == 2) {
+            xSemaphoreTake(data_process, 0);
+            xSemaphoreTake(data_process, 0);
+            process_data(d_sensor, g_sensor);
+        }
+        vTaskDelay(SAMPLE_PERIOD_MS * SAMPLE_SIZE / 10 / portTICK_PERIOD_MS);
     }
 }
 
 void sample_distance(void *p)
 {
-    static uint8_t buf_filled = 0;
     d_sensor.setup(trig_pin, echo_pin);
-    static uint32_t last_sample = millis();
-    static uint32_t current_time;
     while (1)
     {
         if (BUF_FULL == d_sensor.sample(SAMPLE_PERIOD_MS))
@@ -42,13 +42,10 @@ void sample_distance(void *p)
 
 void sample_gyro(void *p)
 {
-    static uint8_t buf_filled = 0;
-    d_sensor.setup(trig_pin, echo_pin);
-    static uint32_t last_sample = millis();
-    static uint32_t current_time;
+    g_sensor.setup();
     while (1)
     {
-        if (BUF_FULL == d_sensor.sample(SAMPLE_PERIOD_MS))
+        if (BUF_FULL == g_sensor.sample(SAMPLE_PERIOD_MS))
         {
             xSemaphoreGive(data_process);
         }
@@ -88,7 +85,7 @@ void setup()
     vTaskDelete(NULL);
 }
 
+// Never reached
 void loop()
 {
-    // put your main code here, to run repeatedly:
 }

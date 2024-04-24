@@ -1,6 +1,6 @@
 #include "Process.h"
 
-uint8_t process_distance(DistanceSensor ds)
+uint8_t process_data(DistanceSensor& ds, GyroSensor& gs)
 {
     static const uint32_t cutoff = 50;
     uint32_t last_distance = ds.save[0].distance;
@@ -11,13 +11,14 @@ uint8_t process_distance(DistanceSensor ds)
     {
         current_distance = ds.save[i].distance;
         difference = current_distance > last_distance ? current_distance - last_distance : last_distance - current_distance;
+        Serial.println(current_distance);
+
         if (difference > cutoff)
         {   
             pothole_flag = 1;
             break;
         }
         last_distance = current_distance;
-        // Serial.println(current_distance);
     }
     if (pothole_flag == 1)
     {
