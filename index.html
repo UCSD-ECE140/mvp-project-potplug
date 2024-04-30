@@ -3,30 +3,28 @@
     <title>PotPlug</title>
 
     <!--CSS-->
-    <link rel="stylesheet" href="static/main.css">
-
-    <!-- chart.js, just in case -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="static/index.css">
 
 </head>
 <body>
-    <main>
-        <section id="incident-section">
-            <h2>Recent Incidents</h2>
-            <div id="incident-list">
-                <!-- Incident data comes here -->
+    <!-- Option Screen -->
+    <header>
+        <div class="dropdown">
+            <button id="menu-btn">&#9776;</button>
+            <div class="dropdown-content">
+                <a href="#">Log In</a>
             </div>
-        </section>
-
-    <section id="map-section">
-        <h2>Live Location</h2>
-        <div id="map">
-            <!-- Google Maps or other map integration can be added here -->
-            <!-- Eddie will do this section -->
         </div>
-    </section>
-    </main>
+        <a href="/dashboard" id="dashboard-btn">Dashboard</a>
+    </header>
+
+    <br> 
+
+    <!-- Description -->
+    <div class="description">
+        <p>A revolutionary car safety device that utilizes cutting-edge technology to ensure your safety on the road.</p>
+    </div>
 
     <!--JavaScript Code-->
-    <script src="/static/interaction.js"></script>
+    <script src="/static/index.js"></script>
 </body>

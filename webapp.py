@@ -15,6 +15,12 @@ def get_html() -> HTMLResponse:
   with open("index.html") as html:
     return HTMLResponse(content=html.read())
 
+# Return Dashboard
+@app.get("/dashboard", response_class=HTMLResponse)
+def get_html() -> HTMLResponse:
+  with open("dashboard.html") as html:
+    return HTMLResponse(content=html.read())
+
 # Steps
 # Website Must Be Able To:
 # 1) Receives Data From Phone: location, severity, type of incident, user confirmation, ultrasound readings, accelerometer readings, gyroscope readings.
