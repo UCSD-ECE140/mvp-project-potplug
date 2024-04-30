@@ -51,22 +51,23 @@ def get_incidents():
 
 #Add One Specific Incident to Database
 @app.put("/api/incidents/{id}")
-def update_incident(id: int, incident: str, loc: tuple):
-    #TODO: Put One New Incident.
+def update_incident(id: int, incident: str, loc: tuple, severity: int, readings: list):
+    #TODO: Put One New Incident in Database
+    type_of_incident(incident, loc, severity, readings) #Does Behavior of Incident Type or any Backprocessing
     return None
 
 #Delete Incident
 @app.delete("/api/incidents/{id}")
 def delete_incident(id: int):
     # Logic to delete an incident
-    return {"message": f"Incident with ID {id} deleted successfully"}
+    return {"Deleted: not yet implemented"}
 
 # Dashboard Data
 @app.get("/api/dashboard")
 def get_dashboard_data():
     #TODO
-    # Will likely need to call incidents.
-    return {"message": "Dashboard data retrieved successfully"}
+    # Will likely need to call incidents and update graph?
+    return {"Not yet implemented"}
 
 
 #Individual Function For Defining Behavior
