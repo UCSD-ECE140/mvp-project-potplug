@@ -18,7 +18,7 @@ header {
     border: none;
     color: white;
     font-size: 24px;
-    padding: 0px 65px;
+    padding: 5px 65px;
 }
 
 #menu-btn:hover {
@@ -69,7 +69,7 @@ header {
 .description {
     background-color: #34495e;
     color: white;
-    padding: 20px;
+    padding: 1px;
     text-align: center;
 }
 
