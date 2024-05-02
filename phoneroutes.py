@@ -7,16 +7,17 @@
 
 ###  ROUTES  ###
 # Implement ASAP:
-# /api/incident   ### Post request to create a new incident
+# /api/postIncident   ### Post request to create a new incident
 # /api/getInfo   ### Get information from devices
 # /api/userConfirmation   ### Get user confirmation
-# /api/location   ### Get user location
-# /api/severity   ### Generate severity
+# location   ### Get user location
+# /api/generateSeverity   ### Generate severity
 # /api/typeOfIncident   ### Guesses type of incident
+# notifyUser
 
 # Later:
-# /api/incidents   ### Get full list of incidents from webserver
-# /api/incidents/id   ### Get an incident from webserver
+# /api/getIncidents   ### Get full list of incidents from webserver
+# /api/getIncident/id   ### Get an incident from webserver
 
 # Optional: 
 # /api/auth/login   ### POST to authenticate user

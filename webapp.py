@@ -4,7 +4,12 @@ from fastapi.staticfiles import StaticFiles   # Used for serving static files
 import uvicorn                                # Used for running the app
 
 # Configuration
-app = FastAPI()                   
+app = FastAPI()         
+
+# I'm thinking we have severity be on a scale of 0 to 1
+# Data Format: id: int, incident: str, loc: tuple, severity: int, readings: list
+loc_sample = (32.86295324078554, -117.2259359279765)
+sample_data = [0, "Pothole", loc_sample, .35, None] #Not sure what the readings will look like
 
 # Mount the static directory
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -35,8 +40,8 @@ def login_user():
     return {"Logged in; not yet implemented."}
 
 #Create User:
-@app.put("/api/auth/create")
-def create_user():
+@app.put("/api/auth/register")
+def register_user():
    #TODO: Implement
    return {"Created account; not yet implemented."}
 
