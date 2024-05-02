@@ -43,6 +43,7 @@ def get_html() -> HTMLResponse:
 ##########################################
 #            Helper Functions            #
 ##########################################
+
 def potholeDetected(loc, severity, readings):
    return
 
@@ -60,6 +61,7 @@ def type_of_incident(incident, loc, severity, readings):
 ##########################################
 #              API Functions             #
 ##########################################
+
 # Get All Incidents From Database   ###NOTE WE MAY WANT TO MAKE IT ONLY GET LOCAL INCIDENTS.
 @app.get("/api/incidents")
 def get_incidents():
@@ -93,6 +95,8 @@ def get_dashboard_data():
 ##########################################
 #             Authentication             #
 ##########################################
+
+### NOTE: I Am Going To Work On This Next, Once Ethan Sets Up Schemas
 # Route To Log User Out
 @app.post("/api/auth/logout")
 def logout_user():
@@ -116,6 +120,7 @@ def register_user():
 ##########################################
 #                  Main                  #
 ##########################################
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=6543)
 
@@ -124,6 +129,7 @@ if __name__ == "__main__":
 ##########################################
 #                 Notes                  #
 ##########################################
+
 # Steps
 # Website Must Be Able To:
 # 1) Receives Data From Phone: location, severity, type of incident, user confirmation, ultrasound readings, accelerometer readings, gyroscope readings.
