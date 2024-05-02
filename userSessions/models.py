@@ -1,5 +1,4 @@
-from pydantic import BaseModel
-
+from pydantic import BaseModels
 
 class User(BaseModel):
     """
