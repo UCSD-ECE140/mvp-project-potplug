@@ -146,3 +146,35 @@ header {
 .btn:hover {
     background-color: #1c6ea4;
 }
+
+/* For Register Button */
+.register-btn {
+    background-color: transparent;
+    color: #34495e; /* Dark blue color */
+    padding: 5px 10px; /* Reduced padding */
+    border: none;
+    border-radius: 3px;
+    text-decoration: none; /* Remove underline */
+    transition: color 0.3s; /* Smooth color transition */
+    display: block; /* Display on a new line */
+}
+
+.register-btn:hover {
+    color: #1c6ea4; /* Dark blue on hover */
+}
+
+/* For Forgot Password Button */
+.forgot-password-btn {
+    background-color: transparent;
+    color: #34495e; /* Dark blue color */
+    padding: 5px 10px; /* Reduced padding */
+    border: none;
+    border-radius: 3px;
+    text-decoration: none; /* Remove underline */
+    transition: color 0.3s; /* Smooth color transition */
+    display: block; /* Display on a new line */
+}
+
+.forgot-password-btn:hover {
+    color: #1c6ea4; /* Dark blue on hover */
+}
