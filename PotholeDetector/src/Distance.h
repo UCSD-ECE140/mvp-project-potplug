@@ -24,9 +24,8 @@ struct DistanceSensor {
 
 
     void swap_buf();
-    Sample_Success sample(const uint8_t period_ms);
+    Sample_Success sample();
     void setup(uint8_t trigger_pin, uint8_t echo_pin);
 };
-
 
 #endif

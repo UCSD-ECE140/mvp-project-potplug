@@ -16,7 +16,7 @@ void DistanceSensor::swap_buf()
     save = temp;
 }
 
-Sample_Success DistanceSensor::sample(const uint8_t period_ms)
+Sample_Success DistanceSensor::sample()
 {
     static uint32_t i = 0;
     uint32_t current_time = millis();
@@ -41,6 +41,5 @@ Sample_Success DistanceSensor::sample(const uint8_t period_ms)
 
     rec[i] = {current_time, distance};
     i += 1;
-    vTaskDelay(period_ms / portTICK_PERIOD_MS);
     return result;
 }

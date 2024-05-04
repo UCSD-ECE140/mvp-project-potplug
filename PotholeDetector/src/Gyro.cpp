@@ -9,7 +9,7 @@
     gyro.setFilterBandwidth(MPU6050_BAND_21_HZ);
   }
 
-  Sample_Success GyroSensor::sample(const uint8_t period_ms) {
+  Sample_Success GyroSensor::sample() {
     static sensors_event_t a, g, temp;
     static uint32_t i = 0;
     uint32_t current_time = millis();
@@ -24,7 +24,6 @@
     gyro.getEvent(&a, &g, &temp);
     rec[i] = {current_time, a.acceleration.x, a.acceleration.y, a.acceleration.z, g.gyro.x, g.gyro.y, g.gyro.z, temp.temperature};
     i += 1;
-    vTaskDelay(period_ms / portTICK_PERIOD_MS);
     return result;
   }
 

@@ -2,7 +2,6 @@
 #define PROCESS_H
 
 #include <Arduino.h>
-#include "Sampling.h"
 #include "Distance.h"
 #include "Gyro.h"
 

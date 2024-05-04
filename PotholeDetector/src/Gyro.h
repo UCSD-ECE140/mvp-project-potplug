@@ -5,9 +5,6 @@
 #ifndef GYRO_H
 #define GYRO_H
 
-void sample_gyro(void *p);
-void setup_gyro();
-
 struct gyro_data
 {
   uint32_t time;
@@ -26,7 +23,7 @@ struct GyroSensor
   Adafruit_MPU6050 gyro;
 
   void setup();
-  Sample_Success sample(const uint8_t period_ms);
+  Sample_Success sample();
   void swap_buf();
 
   gyro_data dist_buf_1[SAMPLE_SIZE];
@@ -34,5 +31,7 @@ struct GyroSensor
   gyro_data *rec = dist_buf_1;
   gyro_data *save = dist_buf_2;
 };
+
+
 
 #endif

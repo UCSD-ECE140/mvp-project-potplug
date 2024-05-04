@@ -1,86 +1,63 @@
+/* Simple data measurements and processing on ESP32 for ultrasound and IMU
+ * Runs sampling on core 0 and processing on core 1
+ */
+
 #include <Arduino.h>
-#include "Distance.h"
 #include "Process.h"
-#include "Gyro.h"
+#include "Sampling.h"
+#include "Comms.h"
 
-const uint8_t trig_pin = 33;
-const uint8_t echo_pin = 32;
+// Constants
+enum Cores
+{
+    CORE_0,
+    CORE_1
+};
 
+// Sensor sampling task
+void sample_sensors(void *p);
+TaskHandle_t *sensor_sampling;
 static DistanceSensor d_sensor;
 static GyroSensor g_sensor;
-TaskHandle_t *distance_task;
-TaskHandle_t *gyro_task;
 
-TaskHandle_t *process_data_task;
+// Data processing task
+TaskHandle_t *processing;
+void process(void *p);
+
+// Tracks whether data is ready to be processed
 SemaphoreHandle_t data_process;
-
-void process(void *p)
-{
-    while (1)
-    {
-        if(uxSemaphoreGetCount(data_process) == 2) {
-            xSemaphoreTake(data_process, 0);
-            xSemaphoreTake(data_process, 0);
-            process_data(d_sensor, g_sensor);
-        }
-        vTaskDelay(SAMPLE_PERIOD_MS * SAMPLE_SIZE / 10 / portTICK_PERIOD_MS);
-    }
-}
-
-void sample_distance(void *p)
-{
-    d_sensor.setup(trig_pin, echo_pin);
-    while (1)
-    {
-        if (BUF_FULL == d_sensor.sample(SAMPLE_PERIOD_MS))
-        {
-            xSemaphoreGive(data_process);
-        }
-        vTaskDelay(SAMPLE_PERIOD_MS / portTICK_PERIOD_MS);
-    }
-}
-
-void sample_gyro(void *p)
-{
-    g_sensor.setup();
-    while (1)
-    {
-        if (BUF_FULL == g_sensor.sample(SAMPLE_PERIOD_MS))
-        {
-            xSemaphoreGive(data_process);
-        }
-        vTaskDelay(SAMPLE_PERIOD_MS / portTICK_PERIOD_MS);
-    }
-}
 
 void setup()
 {
-    Serial.begin(115200);
-    data_process = xSemaphoreCreateCounting(2, 0);
+    // Seup comms and wait until connnected
+    comms.setup();
+    while (!comms.isConnected())
+    {
+    }
 
-    xTaskCreate(
-        sample_distance,
+    // Set data_process semaphore to 0
+    data_process = xSemaphoreCreateBinary();
+    xSemaphoreTake(data_process, 0);
+
+    // Pin sampling to Core 0
+    xTaskCreatePinnedToCore(
+        sample_sensors,
         "Sample Sensors",
-        4000,
+        SAMPLE_STACK_DEPTH,
         NULL,
-        1,
-        distance_task);
+        0,
+        sensor_sampling,
+        CORE_0);
 
-    xTaskCreate(
-        sample_gyro,
-        "Sample Gyro",
-        4000,
-        NULL,
-        1,
-        gyro_task);
-
-    xTaskCreate(
+    // Pin processing to Core 1
+    xTaskCreatePinnedToCore(
         process,
         process_name,
-        process_stack_depth,
+        4000,
         NULL,
-        1,
-        process_data_task);
+        0,
+        processing,
+        CORE_1);
 
     vTaskDelete(NULL);
 }
@@ -88,4 +65,35 @@ void setup()
 // Never reached
 void loop()
 {
+}
+
+void process(void *p)
+{
+    while (1)
+    {
+        if (xSemaphoreTake(data_process, portMAX_DELAY))
+        {
+            process_data(d_sensor, g_sensor);
+        }
+    }
+}
+
+void sample_sensors(void *p)
+{
+    // Ultrasound setup
+    const uint8_t trig_pin = 33;
+    const uint8_t echo_pin = 32;
+    SemaphoreHandle_t data_process = *((SemaphoreHandle_t *)p);
+    d_sensor.setup(trig_pin, echo_pin);
+    g_sensor.setup();
+
+    while (1)
+    {
+        if (d_sensor.sample() == BUF_FULL &&
+            g_sensor.sample() == BUF_FULL) // Buffers should fill at same time if same size
+        {
+            xSemaphoreGive(data_process);
+        }
+        delayMicroseconds(SAMPLE_PERIOD_US);
+    }
 }
