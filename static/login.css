@@ -1,14 +1,22 @@
 body {
-    background-color: #141f29;
+    font-family: Arial, sans-serif;
+    background-color: #141f29; /* Dark background color */
     margin: 0;
     padding: 0;
 }
 
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50vh;
+}
+
 header {
     background-color: #34495e;
-    padding: 20px;
     text-align: center;
     display: flex;
+    padding: 20px;
     justify-content: space-between;
     align-items: center;
 }
@@ -20,6 +28,14 @@ header {
     font-size: 24px;
     padding: 5px 65px;
 }
+
+#titleOfProduct {
+    color: #f0f0f0; /* White-ish grey color */
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 36px; /* Larger font size */
+    margin: 0px;
+}
+
 
 #menu-btn:hover {
     background-color: #1c6ea4;
@@ -66,114 +82,79 @@ header {
     background-color: #1c6ea4; 
 }
 
-.description {
-    background-color: #34495e;
-    color: white;
-    padding: 1px;
-    text-align: center;
-}
-
-.what-we-do {
-    background-color: #f2f2f2;
+.form {
+    background-color: #34495e; /* Darker form background color */
     padding: 20px;
-    margin: 20px auto;
-    max-width: 800px;
-    border-radius: 5px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    max-width: 100%;
+    transition: opacity 0.3s;
 }
 
-.what-we-do h2 {
-    color: #34495e;
-    text-align: center;
-}
-
-.what-we-do p {
-    font-size: 16px;
-    line-height: 1.6;
-    color: #555;
-}
-
-#titleOfProduct {
-    color: #f0f0f0; /* White-ish grey color */
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 36px; /* Larger font size */
-    margin: 0px;
-}
-
-.login-form {
-    background-color: #f2f2f2;
-    padding: 20px;
-    margin: 20px auto;
-    max-width: 400px;
-    border-radius: 5px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-}
-
-.login-form h2 {
-    color: #34495e;
-    text-align: center;
+.form__title {
+    margin-top: 0;
     margin-bottom: 20px;
+    text-align: center;
+    color: #fff; /* Text color */
 }
 
-.form-group {
+.form__message {
+    display: none;
+    color: #f00;
+    margin-bottom: 10px;
+}
+
+.form__input-group {
     margin-bottom: 20px;
     margin-right: 20px;
 }
 
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-}
-
-.form-group input {
+.form__input {
     width: 100%;
     padding: 10px;
     border-radius: 5px;
     border: 1px solid #ccc;
+    background-color: #f2f2f2; /* Input background color */
+    color: #333; /* Input text color */
 }
 
-.btn {
-    background-color: #34495e;
-    color: white;
-    padding: 10px 20px;
+.form__input-error-message {
+    display: none;
+    color: #f00;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.form__button {
+    background-color: #1c6ea4;
+    color: #fff;
+    padding: 10px 0;
+    width: 100%;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s;
 }
 
-.btn:hover {
-    background-color: #1c6ea4;
+.form__button:hover {
+    background-color: #144679;
 }
 
-/* For Register Button */
-.register-btn {
-    background-color: transparent;
-    color: #34495e; /* Dark blue color */
-    padding: 5px 10px; /* Reduced padding */
-    border: none;
-    border-radius: 3px;
-    text-decoration: none; /* Remove underline */
-    transition: color 0.3s; /* Smooth color transition */
-    display: block; /* Display on a new line */
+.form__text {
+    text-align: center;
+    margin-top: 15px;
 }
 
-.register-btn:hover {
-    color: #1c6ea4; /* Dark blue on hover */
+.form__link {
+    color: #a9d1ec;
+    text-decoration: none;
 }
 
-/* For Forgot Password Button */
-.forgot-password-btn {
-    background-color: transparent;
-    color: #34495e; /* Dark blue color */
-    padding: 5px 10px; /* Reduced padding */
-    border: none;
-    border-radius: 3px;
-    text-decoration: none; /* Remove underline */
-    transition: color 0.3s; /* Smooth color transition */
-    display: block; /* Display on a new line */
+.form__link:hover {
+    text-decoration: underline;
 }
 
-.forgot-password-btn:hover {
-    color: #1c6ea4; /* Dark blue on hover */
+.form--hidden {
+    display: none;
 }
