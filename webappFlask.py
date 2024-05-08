@@ -35,6 +35,7 @@ if ENV_FILE:
 
 #https://pythonhosted.org/Flask-OAuth/
 #https://manage.auth0.com/dashboard/us/dev-ufswkzdksg6jljvi/applications/Fgw7QIGnvOOccgy4lafr7FKNOBWZmfng/quickstart
+
 app.secret_key = env.get("APP_SECRET_KEY")
 oauth = OAuth(app)
 oauth.register(
@@ -50,12 +51,8 @@ oauth.register(
 
 
 ##########################################
-#                 Routes                 #
+#             Authentication             #
 ##########################################
-
-@app.route("/")
-def home():
-    return render_template("index.html", session=session.get('user'), pretty=json.dumps(session.get('user'), indent=4))
 
 # Checks if User is Authenticated
 def login_required(f):
@@ -66,18 +63,6 @@ def login_required(f):
             return redirect(url_for('login', next=request.url))
         return f(*args, **kwargs)
     return decorated_function
-
-# Dashboard Page.
-@app.route("/dashboard")
-@login_required   #Requires Being Logged In.
-def dashboard():
-    return render_template("dashboard.html")
-
-# Settings page
-@app.route("/settings")
-@login_required    #Requires Being Logged In.
-def settings():
-    return render_template("settings.html")
 
 @app.route("/login")
 def login():
@@ -105,6 +90,28 @@ def logout():
             quote_via=quote_plus,
         )
     )
+
+
+
+##########################################
+#                 Routes                 #
+##########################################
+
+@app.route("/")
+def home():
+    return render_template("index.html", session=session.get('user'), pretty=json.dumps(session.get('user'), indent=4))
+
+# Dashboard Page.
+@app.route("/dashboard")
+@login_required   #Requires Being Logged In.
+def dashboard():
+    return render_template("dashboard.html")
+
+# Settings page
+@app.route("/settings")
+@login_required    #Requires Being Logged In.
+def settings():
+    return render_template("settings.html")
 
 
 
