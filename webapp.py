@@ -49,12 +49,6 @@ def get_html() -> HTMLResponse:
 def get_html() -> HTMLResponse:
   with open("settings.html") as html:
     return HTMLResponse(content=html.read())
-  
-# Forgot Password Page
-@app.get("/forgot_password", response_class=HTMLResponse)
-def get_html() -> HTMLResponse:
-  with open("forgot_password.html") as html:
-    return HTMLResponse(content=html.read())
 
 ##########################################
 #            Helper Functions            #
