@@ -1,11 +1,8 @@
 <!DOCTYPE html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PotPlug - Login</title>
+    <title>PotPlug - Register</title>
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="static/login.css">
+    <link rel="stylesheet" href="static/register.css">
 </head>
 <body>
     <!-- Header -->
@@ -21,10 +18,10 @@
         <a href="/dashboard" id="dashboard-btn">Dashboard</a>
     </header>
 
-    <!-- Login Form -->
-    <div class="login-form">
-        <h2>Login</h2>
-        <form action="/login" method="post">
+    <!-- Registration Form -->
+    <div class="register-form">
+        <h2>Register</h2>
+        <form action="/register" method="post">
             <div class="form-group">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username" required>
@@ -34,16 +31,16 @@
                 <input type="password" id="password" name="password" required>
             </div>
             <div class="form-group">
-                <button type="submit" class="btn">Login</button>
-                <!-- Register Button -->
-                <a href="/register" class="register-btn">Register</a>
-
-                <!-- Forgot Password Button -->
-                <a href="/forgot_password" class="forgot-password-btn">Forgot Password</a>
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn">Register</button>
+                <!-- Login Button -->
+                <a href="/login" class="login-btn">Log In</a>
             </div>
         </form>
     </div>
 
-    <!-- JavaScript Code -->
     <script src="/static/index.js"></script>
 </body>

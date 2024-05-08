@@ -66,33 +66,6 @@ header {
     background-color: #1c6ea4; 
 }
 
-.description {
-    background-color: #34495e;
-    color: white;
-    padding: 1px;
-    text-align: center;
-}
-
-.what-we-do {
-    background-color: #f2f2f2;
-    padding: 20px;
-    margin: 20px auto;
-    max-width: 800px;
-    border-radius: 5px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-}
-
-.what-we-do h2 {
-    color: #34495e;
-    text-align: center;
-}
-
-.what-we-do p {
-    font-size: 16px;
-    line-height: 1.6;
-    color: #555;
-}
-
 #titleOfProduct {
     color: #f0f0f0; /* White-ish grey color */
     font-family: Arial, Helvetica, sans-serif;
@@ -100,7 +73,7 @@ header {
     margin: 0px;
 }
 
-.login-form {
+.register-form {
     background-color: #f2f2f2;
     padding: 20px;
     margin: 20px auto;
@@ -109,7 +82,7 @@ header {
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
 
-.login-form h2 {
+.register-form h2 {
     color: #34495e;
     text-align: center;
     margin-bottom: 20px;
@@ -146,8 +119,8 @@ header {
     background-color: #1c6ea4;
 }
 
-/* For Register Button */
-.register-btn {
+/* For Login Button */
+.login-btn {
     background-color: transparent;
     color: #34495e; /* Dark blue color */
     padding: 5px 10px; /* Reduced padding */
@@ -158,22 +131,6 @@ header {
     display: block; /* Display on a new line */
 }
 
-.register-btn:hover {
-    color: #1c6ea4; /* Dark blue on hover */
-}
-
-/* For Forgot Password Button */
-.forgot-password-btn {
-    background-color: transparent;
-    color: #34495e; /* Dark blue color */
-    padding: 5px 10px; /* Reduced padding */
-    border: none;
-    border-radius: 3px;
-    text-decoration: none; /* Remove underline */
-    transition: color 0.3s; /* Smooth color transition */
-    display: block; /* Display on a new line */
-}
-
-.forgot-password-btn:hover {
+.login-btn:hover {
     color: #1c6ea4; /* Dark blue on hover */
 }

@@ -44,6 +44,23 @@ def get_html() -> HTMLResponse:
   with open("login.html") as html:
     return HTMLResponse(content=html.read())
 
+# Register page
+@app.get("/register", response_class=HTMLResponse)
+def get_html() -> HTMLResponse:
+  with open("register.html") as html:
+    return HTMLResponse(content=html.read())
+  
+# Settings page
+@app.get("/settings", response_class=HTMLResponse)
+def get_html() -> HTMLResponse:
+  with open("settings.html") as html:
+    return HTMLResponse(content=html.read())
+  
+# Forgot Password Page
+@app.get("/forgot_password", response_class=HTMLResponse)
+def get_html() -> HTMLResponse:
+  with open("forgot_password.html") as html:
+    return HTMLResponse(content=html.read())
 
 ##########################################
 #            Helper Functions            #
