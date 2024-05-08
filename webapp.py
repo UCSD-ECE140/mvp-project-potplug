@@ -25,7 +25,7 @@ ENV_FILE = find_dotenv()
 if ENV_FILE:
     load_dotenv(ENV_FILE)
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2Verifier = OAuth2PasswordBearer(tokenUrl="token")
 
 
 ##########################################

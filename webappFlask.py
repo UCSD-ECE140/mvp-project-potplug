@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles   # Used for serving static files
 from flask import Flask, render_template, redirect, session, url_for
 from authlib.integrations.flask_client import OAuth
 from dotenv import find_dotenv, load_dotenv
-
+from functools import wraps
 import json
 from os import environ as env
 from urllib.parse import quote_plus, urlencode
@@ -50,11 +50,6 @@ oauth.register(
 #                 Routes                 #
 ##########################################
 
-# # Return home page
-# @app.route("/")
-# def home():
-#     return render_template("index.html")
-
 @app.route("/")
 def home():
     return render_template("index.html", session=session.get('user'), pretty=json.dumps(session.get('user'), indent=4))
@@ -64,10 +59,10 @@ def home():
 def dashboard():
     return render_template("dashboard.html")
 
-# # Login page
-# @app.route("/login")
-# def login():
-#     return render_template("login.html")
+# Settings page
+@app.route("/settings")
+def settings():
+    return render_template("settings.html")
 
 @app.route("/login")
 def login():
@@ -95,11 +90,6 @@ def logout():
             quote_via=quote_plus,
         )
     )
-
-# Settings page
-@app.route("/settings")
-def settings():
-    return render_template("settings.html")
 
 
 
