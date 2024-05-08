@@ -1,7 +1,7 @@
 from fastapi import FastAPI                   # The main FastAPI import
 from fastapi.responses import HTMLResponse    # Used for returning HTML responses
 from fastapi.staticfiles import StaticFiles   # Used for serving static files
-from flask import Flask, render_template, redirect, session, url_for
+from flask import Flask, render_template, request, redirect, session, url_for
 from authlib.integrations.flask_client import OAuth
 from dotenv import find_dotenv, load_dotenv
 from functools import wraps
@@ -32,6 +32,9 @@ ENV_FILE = find_dotenv()
 if ENV_FILE:
     load_dotenv(ENV_FILE)
 
+
+#https://pythonhosted.org/Flask-OAuth/
+#https://manage.auth0.com/dashboard/us/dev-ufswkzdksg6jljvi/applications/Fgw7QIGnvOOccgy4lafr7FKNOBWZmfng/quickstart
 app.secret_key = env.get("APP_SECRET_KEY")
 oauth = OAuth(app)
 oauth.register(
@@ -54,8 +57,19 @@ oauth.register(
 def home():
     return render_template("index.html", session=session.get('user'), pretty=json.dumps(session.get('user'), indent=4))
 
-# Return Dashboard
+# Define a decorator function to check if the user is authenticated
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user' not in session:
+            # If user is not logged in, redirect to the login page
+            return redirect(url_for('login', next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
+
+# Dashboard Page.
 @app.route("/dashboard")
+@login_required
 def dashboard():
     return render_template("dashboard.html")
 
