@@ -43,12 +43,6 @@ def get_html() -> HTMLResponse:
 def get_html() -> HTMLResponse:
   with open("login.html") as html:
     return HTMLResponse(content=html.read())
-
-# Register page
-@app.get("/register", response_class=HTMLResponse)
-def get_html() -> HTMLResponse:
-  with open("register.html") as html:
-    return HTMLResponse(content=html.read())
   
 # Settings page
 @app.get("/settings", response_class=HTMLResponse)
