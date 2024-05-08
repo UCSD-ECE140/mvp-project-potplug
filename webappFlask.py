@@ -57,7 +57,7 @@ oauth.register(
 def home():
     return render_template("index.html", session=session.get('user'), pretty=json.dumps(session.get('user'), indent=4))
 
-# Define a decorator function to check if the user is authenticated
+# Checks if User is Authenticated
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -69,12 +69,13 @@ def login_required(f):
 
 # Dashboard Page.
 @app.route("/dashboard")
-@login_required
+@login_required   #Requires Being Logged In.
 def dashboard():
     return render_template("dashboard.html")
 
 # Settings page
 @app.route("/settings")
+@login_required    #Requires Being Logged In.
 def settings():
     return render_template("settings.html")
 
