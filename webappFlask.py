@@ -1,9 +1,16 @@
 from fastapi import FastAPI                   # The main FastAPI import
 from fastapi.responses import HTMLResponse    # Used for returning HTML responses
 from fastapi.staticfiles import StaticFiles   # Used for serving static files
-import uvicorn                                # Used for running the app
-from fastapi.security import OAuth2, OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from flask import Flask, render_template, redirect, session, url_for
+from authlib.integrations.flask_client import OAuth
 from dotenv import find_dotenv, load_dotenv
+
+import json
+from os import environ as env
+from urllib.parse import quote_plus, urlencode
+
+import uvicorn                                # Used for running the app
+
 
 
 ##########################################
@@ -11,7 +18,7 @@ from dotenv import find_dotenv, load_dotenv
 ##########################################
 
 # Configuration
-app = FastAPI()         
+app = Flask(__name__)         
 
 # I'm thinking we have severity be on a scale of 0 to 1
 # Data Format: id: int, incident: str, loc: tuple, severity: int, readings: list
@@ -19,42 +26,82 @@ loc_sample = (32.86295324078554, -117.2259359279765)
 sample_data = [0, "Pothole", loc_sample, .35, None] #Not sure what the readings will look like
 
 # Mount the static directory
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.static_folder = 'static'
 
 ENV_FILE = find_dotenv()
 if ENV_FILE:
     load_dotenv(ENV_FILE)
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+app.secret_key = env.get("APP_SECRET_KEY")
+oauth = OAuth(app)
+oauth.register(
+    "auth0",
+    client_id=env.get("AUTH0_CLIENT_ID"),
+    client_secret=env.get("AUTH0_CLIENT_SECRET"),
+    client_kwargs={
+        "scope": "openid profile email",
+    },
+    server_metadata_url=f'https://{env.get("AUTH0_DOMAIN")}/.well-known/openid-configuration'
+)
+
 
 
 ##########################################
 #                 Routes                 #
 ##########################################
 
-# Return home page
-@app.get("/", response_class=HTMLResponse)
-def get_html() -> HTMLResponse:
-  with open("index.html") as html:
-    return HTMLResponse(content=html.read())
+# # Return home page
+# @app.route("/")
+# def home():
+#     return render_template("index.html")
+
+@app.route("/")
+def home():
+    return render_template("index.html", session=session.get('user'), pretty=json.dumps(session.get('user'), indent=4))
 
 # Return Dashboard
-@app.get("/dashboard", response_class=HTMLResponse)
-def get_html() -> HTMLResponse:
-  with open("dashboard.html") as html:
-    return HTMLResponse(content=html.read())
-  
-# Login page
-@app.get("/login", response_class=HTMLResponse)
-def get_html() -> HTMLResponse:
-  with open("login.html") as html:
-    return HTMLResponse(content=html.read())
-  
+@app.route("/dashboard")
+def dashboard():
+    return render_template("dashboard.html")
+
+# # Login page
+# @app.route("/login")
+# def login():
+#     return render_template("login.html")
+
+@app.route("/login")
+def login():
+    return oauth.auth0.authorize_redirect(
+        redirect_uri=url_for("callback", _external=True)
+    )
+
+@app.route("/callback", methods=["GET", "POST"])
+def callback():
+    token = oauth.auth0.authorize_access_token()
+    session["user"] = token
+    return redirect("/")
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(
+        "https://" + env.get("AUTH0_DOMAIN")
+        + "/v2/logout?"
+        + urlencode(
+            {
+                "returnTo": url_for("home", _external=True),
+                "client_id": env.get("AUTH0_CLIENT_ID"),
+            },
+            quote_via=quote_plus,
+        )
+    )
+
 # Settings page
-@app.get("/settings", response_class=HTMLResponse)
-def get_html() -> HTMLResponse:
-  with open("settings.html") as html:
-    return HTMLResponse(content=html.read())
+@app.route("/settings")
+def settings():
+    return render_template("settings.html")
+
+
 
 ##########################################
 #            Helper Functions            #
@@ -79,32 +126,36 @@ def type_of_incident(incident, loc, severity, readings):
 ##########################################
 
 # Get All Incidents From Database   ###NOTE WE MAY WANT TO MAKE IT ONLY GET LOCAL INCIDENTS.
-@app.get("/api/incidents")
+@app.route("/api/incidents")
 def get_incidents():
-    #TODO: Get Incidents from database 
-    #NOTE: This Function Will Likely Run Right After /dashboard is called.
+    # TODO: Get Incidents from database
+    # NOTE: This Function Will Likely Run Right After /dashboard is called.
     print("Get incidents not yet implemented")
     return []
 
-#Add One Specific Incident to Database
-@app.put("/api/incidents/{id}")
-def update_incident(id: int, incident: str, loc: tuple, severity: int, readings: list):
-    #TODO: Put One New Incident in Database
-    type_of_incident(incident, loc, severity, readings) #Does Behavior of Incident Type or any Backprocessing
-    return None
+# Add One Specific Incident to Database
+@app.route("/api/incidents/<int:id>", methods=["PUT"])
+def update_incident(id):
+    # TODO: Put One New Incident in Database
+    incident = "Pothole"  # Example incident, you need to get this from request data
+    loc = (0.0, 0.0)  # Example location, you need to get this from request data
+    severity = 0  # Example severity, you need to get this from request data
+    readings = []  # Example readings, you need to get this from request data
+    type_of_incident(incident, loc, severity, readings)  # Does Behavior of Incident Type or any Backprocessing
+    return {"message": "Incident updated successfully"}
 
-#Delete Incident
-@app.delete("/api/incidents/{id}")
-def delete_incident(id: int):
+# Delete Incident
+@app.route("/api/incidents/<int:id>", methods=["DELETE"])
+def delete_incident(id):
     # Logic to delete an incident
-    return {"Deleted: not yet implemented"}
+    return {"message": "Incident deleted successfully"}
 
 # Dashboard Data
-@app.get("/api/dashboard")
+@app.route("/api/dashboard")
 def get_dashboard_data():
-    #TODO
+    # TODO
     # Will likely need to call incidents and update graph?
-    return {"Not yet implemented"}
+    return {"message": "Dashboard data retrieved successfully"}
 
    
 
@@ -138,7 +189,7 @@ def register_user():
 ##########################################
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=6543)
+    app.run(host="0.0.0.0", port=6543)
 
 
 
