@@ -24,9 +24,8 @@ def plot_data(df : pd.DataFrame):
     sns.lineplot(data=df, x='GYT', y=label, hue='message', ax=axes[1+ind])
   plt.show()
   
-def describe_data(filepata = None, data=None):
-  if filepath != None:
-    data = import_data(filepath)
+def describe_data(filepath : str):
+  data = import_data(filepath)
   get_sampling_rate(data)
   plot_data(data)
   
