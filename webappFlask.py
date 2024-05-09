@@ -58,6 +58,9 @@ oauth.register(
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        
+        print(session)  #-  We may be able to add settings once we detect user
+
         if 'user' not in session:
             # If user is not logged in, redirect to the login page
             return redirect(url_for('login', next=request.url))

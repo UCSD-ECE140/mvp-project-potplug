@@ -23,9 +23,15 @@
         <a href="/" id="dashboard-btn">Home</a>
     </header>
 
-    <br> 
+    <br>
+    <br>
 
-    <h1> Welcome {{session}} </h1>
+    {% if session.user %}
+    <h1> Welcome {{ session.user.userinfo.nickname }}. </h1>
+    {% else %}
+    <h1> Testing:r {{session}} </h1>
+    {% endif %}
+
     <main>
         <section id="incident-section">
             <h2>Recent Incidents</h2>
