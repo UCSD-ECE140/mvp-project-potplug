@@ -1,5 +1,7 @@
 fastapi
 uvicorn
+pymysql
+geopy
 
 flask>=2.0.3
 python-dotenv>=0.19.2
