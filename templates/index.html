@@ -13,7 +13,11 @@
         <div class="dropdown">
             <button id="menu-btn">&#9776;</button>
             <div class="dropdown-content">
+                {% if session.userinfo %}
+                <a href="/logout">Log Out</a>
+                {% else %}
                 <a href="/login">Log In</a>
+                {% endif %}
                 <a href="/settings">Settings</a>
             </div>
         </div>
