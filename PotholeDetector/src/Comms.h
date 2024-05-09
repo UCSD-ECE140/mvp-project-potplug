@@ -1,7 +1,4 @@
-// #include <BLEDevice.h>
-// #include <BLEUtils.h>
-// #include <BLEServer.h>
-// #include <Arduino.h>
+
 #ifndef COMMS_H
 #define COMMS_H
 
@@ -9,10 +6,6 @@
 #include "Distance.h"
 #include "Gyro.h"
 #include "Sampling.h"
-
-// #define SERVICE_UUID "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
-// #define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
-// #define BAUD_RATE 115200
 
 #define BT 1 // 1 - Bluetooth on.   0 - communicate over serial
 #define DEVICE_NAME "Detector1"
@@ -40,10 +33,7 @@ struct Comms
 
 #if BT
     BluetoothSerial Serial;
-    // BLEServer *pServer;
-    // BLEService *pService;
-    // BLECharacteristic *pCharacteristic;
-    // BLEAdvertising *pAdvertising;
+
 #endif
 
     void setup();

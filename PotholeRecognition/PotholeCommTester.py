@@ -2,7 +2,8 @@ import serial
 import pandas as pd
 import numpy as np
 from IPython.display import display
-import struct
+from datetime import datetime
+from PotholeDataExploration import describe
 
 class SerialHandler():
   ser = None
@@ -31,7 +32,12 @@ class SerialHandler():
         entry[label] = data
     entry['message'] = [self.msg_count for i in range(0, len(entry['DST']))]
     self.df = pd.concat([self.df, pd.DataFrame.from_dict(entry)])
-    
+  
+  def save_data(self) -> str:
+    filename = f"PotholeData/{datetime.now().strftime('%d_%m_%Y_T%H_%M_%S')}.csv"
+    self.df.to_csv(path_or_buf=filename, index=False)
+    return filename
+      
   def run(self):
     if self.ser.in_waiting != 0:
       if self.ser.readline().decode().startswith("BGD"):
@@ -52,6 +58,8 @@ if __name__ == '__main__':
         display(serial.df)
         prev_count = serial.msg_count
   finally:
+    filepath = serial.save_data()
+    describe(filepath)
     serial.close()
     print("Comms closed")
           
