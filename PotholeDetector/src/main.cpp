@@ -31,9 +31,6 @@ void setup()
 {
     // Seup comms and wait until connnected
     comms.setup();
-    while (!comms.isConnected())
-    {
-    }
 
     // Set data_process semaphore to 0
     data_process = xSemaphoreCreateBinary();
@@ -68,8 +65,7 @@ void loop()
 }
 
 void process(void *p)
-{
-    while (1)
+{    while (1)
     {
         if (xSemaphoreTake(data_process, portMAX_DELAY))
         {
@@ -80,17 +76,17 @@ void process(void *p)
 
 void sample_sensors(void *p)
 {
+
     // Ultrasound setup
     const uint8_t trig_pin = 33;
     const uint8_t echo_pin = 32;
-    SemaphoreHandle_t data_process = *((SemaphoreHandle_t *)p);
     d_sensor.setup(trig_pin, echo_pin);
     g_sensor.setup();
 
     while (1)
     {
-        if (d_sensor.sample() == BUF_FULL &&
-            g_sensor.sample() == BUF_FULL) // Buffers should fill at same time if same size
+        d_sensor.sample();
+        if (g_sensor.sample() == BUF_FULL)
         {
             xSemaphoreGive(data_process);
         }

@@ -2,6 +2,9 @@
 // #include <BLEUtils.h>
 // #include <BLEServer.h>
 // #include <Arduino.h>
+#ifndef COMMS_H
+#define COMMS_H
+
 #include <BluetoothSerial.h>
 #include "Distance.h"
 #include "Gyro.h"
@@ -11,27 +14,46 @@
 // #define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 // #define BAUD_RATE 115200
 
-#define BT 1
-#define DEVICE_NAME "PotholeDetector"
+#define BT 1 // 1 - Bluetooth on.   0 - communicate over serial
+#define DEVICE_NAME "Detector1"
 
-static struct Comms
+#define BEGIN_DATA "BGD"
+#define END_DATA "END"
+#define TIME "TME"
+#define GRYO_TIME "GYT"
+#define DIST_TIME "DST"
+#define ACC_X "ACX"
+#define ACC_Y "ACY"
+#define ACC_Z "ACZ"
+#define W_X "RTX"
+#define W_Y "RTY"
+#define W_Z "RTZ"
+#define DIST "DIS"
+
+static const uint8_t LABEL_LENGTH = 4;
+
+
+struct Comms
 {
-private:
     uint8_t connected = 0;
+    void end_line();
 
 #if BT
-    BluetoothSerial SerialBt;
+    BluetoothSerial Serial;
     // BLEServer *pServer;
     // BLEService *pService;
     // BLECharacteristic *pCharacteristic;
     // BLEAdvertising *pAdvertising;
 #endif
 
-public:
     void setup();
-    void send(dist_data* data);
-    void send(gyro_data* data);
-    void send(uint8_t* data);
-    void Comms::send(uint8_t *label, uint8_t label_len, uint32_t* data, size_t data_len);
+    void send_data(dist_data &data, gyro_data &gyro);
+    void send_samples(const char* label, i32_t* data);
+    void send_samples(const char* label, f32_t* data);
+    void send_label(const char *label);
     uint8_t isConnected();
-} comms;
+};
+
+static Comms comms;
+
+#endif

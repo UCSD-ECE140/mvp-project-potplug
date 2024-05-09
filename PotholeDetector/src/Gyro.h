@@ -7,16 +7,19 @@
 
 struct gyro_data
 {
-  uint32_t time;
-  float
-      a_x,
-      a_y,
-      a_z,
-      w_x,
-      w_y,
-      w_z,
-      temp;
+  i32_t 
+      time[SAMPLE_SIZE];
+  f32_t
+      a_x [SAMPLE_SIZE],
+      a_y [SAMPLE_SIZE],
+      a_z [SAMPLE_SIZE],
+      w_x [SAMPLE_SIZE],
+      w_y [SAMPLE_SIZE],
+      w_z [SAMPLE_SIZE],
+      temp [SAMPLE_SIZE];
+  void save(uint32_t index, uint32_t _time, float _ax, float _ay, float _az, float _wx, float _wy, float _wz, float _temp);
 };
+
 
 struct GyroSensor
 {
@@ -26,10 +29,10 @@ struct GyroSensor
   Sample_Success sample();
   void swap_buf();
 
-  gyro_data dist_buf_1[SAMPLE_SIZE];
-  gyro_data dist_buf_2[SAMPLE_SIZE];
-  gyro_data *rec = dist_buf_1;
-  gyro_data *save = dist_buf_2;
+  gyro_data buf_1;
+  gyro_data buf_2;
+  gyro_data *rec = &buf_1;
+  gyro_data *save = &buf_2;
 };
 
 

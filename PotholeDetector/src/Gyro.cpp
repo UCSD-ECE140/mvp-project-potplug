@@ -22,7 +22,7 @@
         result = BUF_FULL;
     }
     gyro.getEvent(&a, &g, &temp);
-    rec[i] = {current_time, a.acceleration.x, a.acceleration.y, a.acceleration.z, g.gyro.x, g.gyro.y, g.gyro.z, temp.temperature};
+    rec->save(i, current_time, a.acceleration.x, a.acceleration.y, a.acceleration.z, g.gyro.x, g.gyro.y, g.gyro.z, temp.temperature);
     i += 1;
     return result;
   }
@@ -32,3 +32,15 @@
         rec = save;
         save = temp;
   }
+
+    void gyro_data::save(uint32_t i, uint32_t _time, float _ax, float _ay, float _az, float _wx, float _wy, float _wz, float _temp) {
+      time[i].iValue = _time;
+      a_x[i].fValue = _ax;
+      a_y[i].fValue = _ay;
+      a_z[i].fValue = _az;
+      w_x[i].fValue = _wx;
+      w_y[i].fValue = _wy;
+      w_z[i].fValue = _wz;
+      temp[i].fValue = _temp;
+    }
+

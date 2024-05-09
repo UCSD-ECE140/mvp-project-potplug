@@ -21,7 +21,6 @@ Sample_Success DistanceSensor::sample()
     static uint32_t i = 0;
     uint32_t current_time = millis();
     Sample_Success result = A_SAMPLE;
-    static portMUX_TYPE port = portMUX_INITIALIZER_UNLOCKED;
 
     if (i >= SAMPLE_SIZE)
     {
@@ -31,15 +30,19 @@ Sample_Success DistanceSensor::sample()
     }
 
     uint32_t distance;
-    taskENTER_CRITICAL(&port);
     digitalWrite(trigger, HIGH);
     delayMicroseconds(2);
     digitalWrite(trigger, LOW);
-    distance = pulseIn(echo, HIGH, 10000000);
-    taskEXIT_CRITICAL(&port);
-    distance *= 0.343 / 2;
+    distance = pulseIn(echo, HIGH) * .0343 / 2;
+    // Serial.println(distance);
 
-    rec[i] = {current_time, distance};
+    rec->save(i, current_time, distance);
     i += 1;
     return result;
 }
+
+void dist_data::save(uint32_t i, uint32_t _time, uint32_t _dist) {
+    time[i].iValue = _time;
+    distance[i].iValue = _dist;
+}
+

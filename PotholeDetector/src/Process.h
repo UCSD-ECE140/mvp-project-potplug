@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include "Distance.h"
 #include "Gyro.h"
+#include "Comms.h"
 
 const uint32_t process_stack_depth = 10000;
 const char process_name[] = "Process Data";
