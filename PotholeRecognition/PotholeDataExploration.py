@@ -12,17 +12,26 @@ def get_sampling_rate(data : pd.DataFrame):
   print("Sampling rate")
   print(size / ((max - min) / 1000) )
   
-def show_distance(df : pd.DataFrame):
-  sns.lineplot(data=df, x='DST', y ='DIS', hue='message')
+def describe_data(data : pd.DataFrame):
+  data.describe()
+  
+  
+def plot_data(df : pd.DataFrame):
+  fig, axes = plt.subplots(nrows=7, ncols=1)
+  sns.lineplot(data=df, x='DST', y ='DIS', hue='message', ax=axes[0])
+  labels = ['ACX', 'ACY', 'ACZ', 'RTX', 'RTY', 'RTZ']
+  for (ind,label) in enumerate(labels):
+    sns.lineplot(data=df, x='GYT', y=label, hue='message', ax=axes[1+ind])
   plt.show()
   
-def describe(filepath):
-  data = import_data(filepath)
+def describe_data(filepata = None, data=None):
+  if filepath != None:
+    data = import_data(filepath)
   get_sampling_rate(data)
-  show_distance(data)
+  plot_data(data)
   
 if __name__ == "__main__":
   filepath = "PotholeData/09_05_2024_T14_16_40.csv"
-  describe(filepath)
+  describe_data(filepath)
   
   

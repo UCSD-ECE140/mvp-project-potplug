@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from IPython.display import display
 from datetime import datetime
-from PotholeDataExploration import describe
+from PotholeDataExploration import describe_data
 
 class SerialHandler():
   ser = None
@@ -59,7 +59,7 @@ if __name__ == '__main__':
         prev_count = serial.msg_count
   finally:
     filepath = serial.save_data()
-    describe(filepath)
+    describe_data(filepath)
     serial.close()
     print("Comms closed")
           
