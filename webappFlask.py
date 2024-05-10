@@ -172,31 +172,6 @@ def get_dashboard_data():
     # Will likely need to call incidents and update graph?
     return {"message": "Dashboard data retrieved successfully"}
 
-   
-
-##########################################
-#             Authentication             #
-##########################################
-
-### NOTE: I Am Going To Work On This Next, Once Ethan Sets Up Schemas
-# Route To Log User Out
-@app.post("/api/auth/logout")
-def logout_user():
-    #TODO: Implement
-    return {"Logged out; not yet implemented."}
-
-#Route to Log User In:
-@app.post("/api/auth/login")
-def login_user():
-    #TODO: Implement
-    return {"Logged in; not yet implemented."}
-
-#Create User:
-@app.put("/api/auth/register")
-def register_user():
-   #TODO: Implement
-   return {"Created account; not yet implemented."}
-
 
 
 ##########################################
