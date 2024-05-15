@@ -8,8 +8,7 @@ from functools import wraps
 import json
 from os import environ as env
 from urllib.parse import quote_plus, urlencode
-
-import uvicorn                                # Used for running the app
+import smtplib
 
 
 
@@ -24,6 +23,7 @@ app = Flask(__name__)
 # Data Format: id: int, incident: str, loc: tuple, severity: int, readings: list
 loc_sample = (32.86295324078554, -117.2259359279765)
 sample_data = [0, "Pothole", loc_sample, .35, None] #Not sure what the readings will look like
+# For the readings we want the approximate depth and the width (in cm)
 
 # Mount the static directory
 app.static_folder = 'static'
@@ -48,6 +48,13 @@ oauth.register(
     server_metadata_url=f'https://{env.get("AUTH0_DOMAIN")}/.well-known/openid-configuration'
 )
 
+#Used to connect
+CARRIERS = {
+    "att": "@mms.att.net",
+    "tmobile": "@tmomail.net",
+    "verizon": "@vtext.com",
+    "sprint": "@messaging.sprintpcs.com"
+}
 
 
 ##########################################
@@ -125,8 +132,28 @@ def settings():
 def potholeDetected(loc, severity, readings):
    return
 
-### IF WE LIKE THIS STRUCTURE THEN WE MAY NEED TO MAKE A FUNCTION FOR EVERY OTHER
-### INCIDENT TYPE.
+#Can switch to twilio potentially but need to find carrier
+def messageEmergencyContact(phoneNum, location, userInfo, carrier):
+    phone_email = f"{phoneNum}" + CARRIERS[carrier]
+    message = f"{userInfo['user']} has experienced a car incident at {location}"
+
+    # Email server configuration
+    sender_email = "potplugtesting@gmail.com"  # Normal Email - pass is Testing123~
+    password = "pwrplsmoecjduvnr"  # App Password
+
+    try:
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls() 
+        
+        server.login(sender_email, password)
+        
+        # Send the email
+        server.sendmail(sender_email, phone_email, message)
+        print("Text message sent successfully!")
+    except Exception as e:
+        print(f"Error sending text message: {e}")
+    finally:
+        server.quit()
 
 # Calls Respective Incident Type In Case We Need It:
 def type_of_incident(incident, loc, severity, readings):
@@ -179,6 +206,9 @@ def get_dashboard_data():
 ##########################################
 
 if __name__ == "__main__":
+    userInfo = {"user":"Adrian"}
+
+    #messageEmergencyContact(8582618935, loc_sample, userInfo, "tmobile")
     app.run(host="0.0.0.0", port=6543)
 
 
