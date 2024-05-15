@@ -1,7 +1,7 @@
 from fastapi import FastAPI                   # The main FastAPI import
 from fastapi.responses import HTMLResponse    # Used for returning HTML responses
 from fastapi.staticfiles import StaticFiles   # Used for serving static files
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from authlib.integrations.flask_client import OAuth
 from dotenv import find_dotenv, load_dotenv
 from functools import wraps
@@ -20,10 +20,10 @@ import smtplib
 app = Flask(__name__)         
 
 # I'm thinking we have severity be on a scale of 0 to 1
-# Data Format: id: int, incident: str, loc: tuple, severity: int, readings: list
+# Data Format: id: int, incident: str, loc: tuple, severity: int, readings: list (length, depth) - cm
 loc_sample = (32.86295324078554, -117.2259359279765)
-sample_data = [0, "Pothole", loc_sample, .35, None] #Not sure what the readings will look like
-# For the readings we want the approximate depth and the width (in cm)
+pothole_data = [30, 5]
+sample_data = [0, "Pothole", loc_sample, .35, pothole_data] 
 
 # Mount the static directory
 app.static_folder = 'static'
@@ -129,7 +129,7 @@ def settings():
 #            Helper Functions            #
 ##########################################
 
-def potholeDetected(loc, severity, readings):
+def potholeDetected(readings):
    return
 
 #Can switch to twilio potentially but need to find carrier
@@ -172,8 +172,17 @@ def type_of_incident(incident, loc, severity, readings):
 def get_incidents():
     # TODO: Get Incidents from database
     # NOTE: This Function Will Likely Run Right After /dashboard is called.
-    print("Get incidents not yet implemented")
-    return []
+    
+    test_data = {
+        "id": 0,
+        "incident": "Pothole",
+        "loc": loc_sample,
+        "severity": 0.35,
+        "readings": pothole_data
+    } 
+
+    # Return the incident data as JSON
+    return jsonify([test_data])
 
 # Add One Specific Incident to Database
 @app.route("/api/incidents/<int:id>", methods=["PUT"])

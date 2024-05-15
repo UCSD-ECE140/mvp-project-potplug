@@ -2,7 +2,7 @@
 <head>
     <title>PotPlug</title>
 
-    <!--CSS-->
+    <!-- CSS -->
     <link rel="stylesheet" href="static/dashboard.css">
 
     <!-- chart.js, just in case -->
@@ -49,6 +49,30 @@
     </section>
     </main>
 
-    <!--JavaScript Code-->
-    <script src="/static/interaction.js"></script>
+    <!-- JavaScript Code -->
+    <script>
+        // Fetch incident data from the API
+        fetch('/api/incidents')
+            .then(response => response.json())
+            .then(data => {
+                const incidentList = document.getElementById('incident-list');
+                data.forEach(incident => {
+
+                    // Create a new div element for each incident
+                    const incidentDiv = document.createElement('div');
+                    incidentDiv.classList.add('incident');
+                    
+                    const htmlContent = `
+                        <p><strong>Recent Incident:</strong> ${incident.incident} at location ${incident.loc} with a severity of ${incident.severity}. The pothole has a length of ${incident.readings[0]} cm and a depth of ${incident.readings[1]} cm.</p>
+                    `;
+                    
+                    
+                    incidentDiv.innerHTML = htmlContent;
+                    incidentList.appendChild(incidentDiv);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching incident data:', error);
+            });
+    </script>
 </body>
