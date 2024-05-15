@@ -9,7 +9,7 @@ import json
 from os import environ as env
 from urllib.parse import quote_plus, urlencode
 import smtplib
-
+import databaseSample.db_utility as db
 
 
 ##########################################
@@ -173,6 +173,8 @@ def get_incidents():
     # TODO: Get Incidents from database
     # NOTE: This Function Will Likely Run Right After /dashboard is called.
     
+    print("All stuff in db: ", db.get_all_incidents())  #We will need to eventually use this to access db.
+
     test_data = {
         "id": 0,
         "incident": "Pothole",
@@ -219,28 +221,3 @@ if __name__ == "__main__":
 
     #messageEmergencyContact(8582618935, loc_sample, userInfo, "tmobile")
     app.run(host="0.0.0.0", port=6543)
-
-
-
-##########################################
-#                 Notes                  #
-##########################################
-
-# Steps
-# Website Must Be Able To:
-# 1) Receives Data From Phone: location, severity, type of incident, user confirmation, ultrasound readings, accelerometer readings, gyroscope readings.
-# 2) Display Data to Users Via Dashboard & Ultimately Phone
-# 3) Store Data  -  Eddie
-# 4) Track Users Using The Website  - Later
-
-# ROUTES FOR EACH STEP:
-########  1  ##########
-# Pothole Detected      --->  Step 3
-# Speedbump Detected    --->  Step 3
-# Crash Detected        --->  Step 3
-# Damage Detected       --->  Step 3
-# Crash Detected        --->  Step 3
-
-########  2  ##########
-# Create Login Routes (Optional)
-# Create Basic Text Display of Data on Dashboard  --->  Ultimately Will Tie to Google Plugin
