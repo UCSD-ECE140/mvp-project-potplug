@@ -7,6 +7,7 @@ from os import environ as env
 from urllib.parse import quote_plus, urlencode
 import smtplib
 import databaseSample.db_utility as db
+import datetime
 
 
 ##########################################
@@ -73,7 +74,7 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# Gets user identifier.
+# Gets unique user identifier.
 def getCurrentUserIdentifier():
     try:
         userId = session['user']['userinfo']['sub']
@@ -94,12 +95,14 @@ def add_user(userIdentifier, username):
     print("Adding User", userIdentifier, username) # Example is google-oauth2|117344724568847202933
     return {"message" : "Not implemented yet."}
 
+# Redirects to Auth0 Login Page
 @app.route("/login")
 def login():
     return oauth.auth0.authorize_redirect(
         redirect_uri=url_for("callback", _external=True)
     )
 
+# Redirects from Auth0 Login Page to Dashboard After Logged In
 @app.route("/callback", methods=["GET", "POST"])
 def callback():
     token = oauth.auth0.authorize_access_token()
@@ -107,6 +110,7 @@ def callback():
     add_user(getCurrentUserIdentifier(), getUserName())
     return redirect("/dashboard")
 
+# Redirects to Home Page After Logging Out
 @app.route("/logout")
 def logout():
     session.clear()
@@ -128,9 +132,11 @@ def logout():
 #                 Routes                 #
 ##########################################
 
+# Home Route
 @app.route("/")
 def home():
-    return render_template("index.html", session=session.get('user'), pretty=json.dumps(session.get('user'), indent=4))
+    return render_template("index.html", session=session.get('user'), 
+                           pretty=json.dumps(session.get('user'), indent=4))
 
 # Dashboard Page.
 @app.route("/dashboard")
@@ -150,8 +156,9 @@ def settings():
 #            Helper Functions            #
 ##########################################
 
-def potholeDetected(readings):
-   return
+# TODO: Update once we have db updated.
+def potholeDetected(loc, incident, user_id, date, time, severity, readings):
+   db.report_pothole(loc[0], loc[1])
 
 # Should probably be using a user and then get userInfo characteristics from that.
 #Can switch to twilio potentially but need to find carrier
@@ -177,10 +184,16 @@ def messageEmergencyContact(location, userInfo):
     finally:
         server.quit()
 
-# Calls Respective Incident Type In Case We Need It:
-def type_of_incident(incident, loc, severity, readings):
-   if(incident == "Pothole"):
-      potholeDetected(loc, severity, readings)
+# TODO: Implement logging once speedbump functionality is added.
+def speedbumpDetected(loc, incident, user_id, date, time, severity, readings):
+    return {"message" : "Need to add speedbump functionality later."}
+
+# TODO: Once user database is implemented, replace getUserName() with get user.
+# TODO: Update crash logging
+def crashDetected(loc, incident, user_id, date, time, severity, readings):
+    messageEmergencyContact(loc, getUserName()) # Replace with User Name, instead of username.
+    db.report_incident(loc[0], loc[1], user_id, date, time, severity)
+    return {}
 
 
 
@@ -205,12 +218,6 @@ def get_incidents():
 
     # Return the incident data as JSON
     return jsonify([test_data])
-
-# Add One Specific Incident to Database
-@app.route("/api/incidents/<int:id>", methods=["PUT"])
-def update_incident(latitude, longitude, user_id, date, time, severity):
-    db.make_incident(latitude, longitude, user_id, date, time, severity)
-    return {"message": "Incident updated successfully"}
 
 # Delete Incident
 # TODO: Implement once db delete function is done.
@@ -251,6 +258,18 @@ def update_user():
         #Should create user with None filling all of the missing fields.
         return jsonify({"error": "Missing required fields"}), 400
 
+# Calls Respective Incident Type In Case We Need It:
+@app.route("/api/addIncident/", methods=["POST"])
+def type_of_incident(incident, loc, severity, user_id, readings):
+    date = datetime.datetime.now().date()
+    time = datetime.datetime.now().time()
+
+    if(incident == "Pothole"):
+       potholeDetected(loc, incident, user_id, date, time, severity, readings)
+    if(incident == "Speedbump"):
+       speedbumpDetected(loc, incident, user_id, date, time, severity, readings)
+    if(incident == "Crash"):
+        crashDetected(loc, incident, user_id, date, time, severity, readings)
 
 
 
