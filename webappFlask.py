@@ -1,6 +1,3 @@
-from fastapi import FastAPI                   # The main FastAPI import
-from fastapi.responses import HTMLResponse    # Used for returning HTML responses
-from fastapi.staticfiles import StaticFiles   # Used for serving static files
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from authlib.integrations.flask_client import OAuth
 from dotenv import find_dotenv, load_dotenv
@@ -17,25 +14,16 @@ import databaseSample.db_utility as db
 ##########################################
 
 # Configuration
-app = Flask(__name__)         
-
-# I'm thinking we have severity be on a scale of 0 to 1
-# Data Format: id: int, incident: str, loc: tuple, severity: int, readings: list (length, depth) - cm
-loc_sample = (32.86295324078554, -117.2259359279765)
-pothole_data = [30, 5]
-sample_data = [0, "Pothole", loc_sample, .35, pothole_data] 
-
-# Mount the static directory
+app = Flask(__name__)
 app.static_folder = 'static'
 
+# Setting Up Authentication Stuff
 ENV_FILE = find_dotenv()
 if ENV_FILE:
     load_dotenv(ENV_FILE)
 
-
 #https://pythonhosted.org/Flask-OAuth/
 #https://manage.auth0.com/dashboard/us/dev-ufswkzdksg6jljvi/applications/Fgw7QIGnvOOccgy4lafr7FKNOBWZmfng/quickstart
-
 app.secret_key = env.get("APP_SECRET_KEY")
 oauth = OAuth(app)
 oauth.register(
@@ -48,13 +36,26 @@ oauth.register(
     server_metadata_url=f'https://{env.get("AUTH0_DOMAIN")}/.well-known/openid-configuration'
 )
 
-#Used to connect
+# For Sending Messages
 CARRIERS = {
     "att": "@mms.att.net",
     "tmobile": "@tmomail.net",
     "verizon": "@vtext.com",
     "sprint": "@messaging.sprintpcs.com"
 }
+
+
+
+##########################################
+#              Sample Data               #
+##########################################
+
+# I'm thinking we have severity be on a scale of 0 to 1
+# Data Format: id: int, incident: str, loc: tuple, severity: int, readings: list (length, depth) - cm
+loc_sample = (32.86295324078554, -117.2259359279765)
+pothole_data = [30, 5]
+sample_data = [0, "Pothole", loc_sample, .35, pothole_data] 
+
 
 
 ##########################################
@@ -65,14 +66,24 @@ CARRIERS = {
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        
-        print(session)  #-  We may be able to add settings once we detect user
 
+        # If user is not logged in, redirect to the login page
         if 'user' not in session:
-            # If user is not logged in, redirect to the login page
             return redirect(url_for('login', next=request.url))
         return f(*args, **kwargs)
     return decorated_function
+
+def getCurrentUserIdentifier():
+    try:
+        userId = session['user']['userinfo']['sub']
+        return userId
+    except:
+        return {"message": "Had error"}
+
+# TODO: Implement Once database is done
+def add_user(userIdentifier):
+    print("Adding User")
+    return {"message" : "Not implemented yet."}
 
 @app.route("/login")
 def login():
@@ -84,7 +95,8 @@ def login():
 def callback():
     token = oauth.auth0.authorize_access_token()
     session["user"] = token
-    return redirect("/")
+    add_user(getCurrentUserIdentifier())
+    return redirect("/dashboard")
 
 @app.route("/logout")
 def logout():
@@ -132,9 +144,10 @@ def settings():
 def potholeDetected(readings):
    return
 
+# Should probably be using a user and then get userInfo characteristics from that.
 #Can switch to twilio potentially but need to find carrier
-def messageEmergencyContact(phoneNum, location, userInfo, carrier):
-    phone_email = f"{phoneNum}" + CARRIERS[carrier]
+def messageEmergencyContact(location, userInfo):
+    phone_email = f"{userInfo['phoneNum']}" + CARRIERS[userInfo['carrier']]
     message = f"{userInfo['user']} has experienced a car incident at {location}"
 
     # Email server configuration
@@ -162,16 +175,14 @@ def type_of_incident(incident, loc, severity, readings):
 
 
 
-
 ##########################################
 #              API Functions             #
 ##########################################
 
-# Get All Incidents From Database   ###NOTE WE MAY WANT TO MAKE IT ONLY GET LOCAL INCIDENTS.
+# Get All Incidents From Database
+# TODO : Implement pulling from database.
 @app.route("/api/incidents")
 def get_incidents():
-    # TODO: Get Incidents from database
-    # NOTE: This Function Will Likely Run Right After /dashboard is called.
     
     print("All stuff in db: ", db.get_all_incidents())  #We will need to eventually use this to access db.
 
@@ -188,27 +199,49 @@ def get_incidents():
 
 # Add One Specific Incident to Database
 @app.route("/api/incidents/<int:id>", methods=["PUT"])
-def update_incident(id):
-    # TODO: Put One New Incident in Database
-    incident = "Pothole"  # Example incident, you need to get this from request data
-    loc = (0.0, 0.0)  # Example location, you need to get this from request data
-    severity = 0  # Example severity, you need to get this from request data
-    readings = []  # Example readings, you need to get this from request data
-    type_of_incident(incident, loc, severity, readings)  # Does Behavior of Incident Type or any Backprocessing
+def update_incident(latitude, longitude, user_id, date, time, severity):
+    db.make_incident(latitude, longitude, user_id, date, time, severity)
     return {"message": "Incident updated successfully"}
 
 # Delete Incident
+# TODO: Implement once db delete function is done.
 @app.route("/api/incidents/<int:id>", methods=["DELETE"])
 def delete_incident(id):
     # Logic to delete an incident
     return {"message": "Incident deleted successfully"}
 
-# Dashboard Data
-@app.route("/api/dashboard")
-def get_dashboard_data():
-    # TODO
-    # Will likely need to call incidents and update graph?
-    return {"message": "Dashboard data retrieved successfully"}
+# Gets the user info
+# TODO: Need to implement this once we have user info storing.
+@app.route("/api/getUserInfo/",)
+def get_user():
+    try:
+        getCurrentUserIdentifier()
+        return None
+    except:
+        return {"message": "Had error"}
+
+# Adds the user info
+# TODO: Need to implement this once we have users existing.
+@app.route("/api/addUser/", methods=["POST"])
+def update_user():
+    user = getCurrentUserIdentifier()
+
+    data = request.json
+
+    emergency_contact_name = data.get('emergency_contact_name')
+    emergency_contact_phone = data.get('emergency_contact_phone')
+    emergency_contact_carrier = data.get('emergency_contact_carrier')
+    user_phone = data.get('user_phone')
+    user_carrier = data.get('user_carrier')
+    user_name = data.get('user_name')
+    sensitivity = data.get('sensitivity')
+    city_government = data.get('city_government')
+
+    if not all([user, emergency_contact_name, emergency_contact_phone, emergency_contact_carrier, 
+                user_phone, user_carrier, user_name, sensitivity, city_government]):
+        #Should create user with None filling all of the missing fields.
+        return jsonify({"error": "Missing required fields"}), 400
+
 
 
 
@@ -217,7 +250,6 @@ def get_dashboard_data():
 ##########################################
 
 if __name__ == "__main__":
-    userInfo = {"user":"Adrian"}
-
-    #messageEmergencyContact(8582618935, loc_sample, userInfo, "tmobile")
+    #userInfo = {"user":"Adrian", "phoneNum":8582618935, "carrier":"tmobile","sensitivity":6,"emergencyContact":"Adrian", "emergencyContactPhoneNumber":8582618935}
+    #messageEmergencyContact(loc_sample, userInfo)
     app.run(host="0.0.0.0", port=6543)
