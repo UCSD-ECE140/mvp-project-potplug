@@ -13,11 +13,11 @@ void Comms::setup() {
     #endif
 }
 
-void Comms::send_data(dist_data& dist, gyro_data& gyro) {
+void Comms::send_data(gyro_data& gyro, dist_data& dist) {
     send_label(BEGIN_DATA);
     end_line();
 
-    send_samples(DIST_TIME, dist.time);
+    // send_samples(DIST_TIME, dist.time);
     send_samples(DIST, dist.distance);
 
     send_samples(GRYO_TIME, gyro.time);
