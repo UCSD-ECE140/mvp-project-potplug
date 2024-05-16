@@ -1,28 +1,91 @@
 <!DOCTYPE html>
+<html>
 <head>
     <title>PotPlug - Settings</title>
 
     <!-- CSS -->
-    <link rel="stylesheet" href="static/index.css">
+    <link rel="stylesheet" href="static/settings.css">
 </head>
 <body>
-    <!-- Header -->
-    <header>
-        <div class="dropdown">
-            <button id="menu-btn">&#9776;</button>
-            <div class="dropdown-content">
-                <a href="/logout">Log Out</a>
-                <a href="/settings">Settings</a>
-            </div>
+
+<!-- Header -->
+<header>
+    <div class="dropdown">
+        <button id="menu-btn">&#9776;</button>
+        <div class="dropdown-content">
+            <a href="/logout">Log Out</a>
+            <a href="/settings">Settings</a>
         </div>
-        <h1 id="titleOfProduct">PotPlug</h1>
-        <a href="/dashboard" id="dashboard-btn">Dashboard</a>
-    </header>
-
-    <br>
-
-    <!-- Description -->
-    <div class="description">
-        <p>To Complete</p>
     </div>
+    <h1 id="titleOfProduct">PotPlug</h1>
+    <a href="/dashboard" id="dashboard-btn">Dashboard</a>
+</header>
+
+<br>
+
+<!-- Form -->
+<form id="settings-form" action="/api/updateUser/" method="post">
+
+    <label for="user_phone">User Phone Number:</label><br>
+    <input type="tel" id="user_phone" name="user_phone" required><br><br>
+
+    <label for="user_carrier">User Phone Carrier:</label><br>
+    <select id="user_carrier" name="user_carrier" required>
+        <option value="att">AT&T</option>
+        <option value="tmobile">T-Mobile</option>
+        <option value="sprint">Sprint</option>
+        <option value="verizon">Verizon</option>
+    </select><br><br>
+
+    <label for="user_name">First and Last Name:</label><br>
+    <input type="text" id="user_name" name="user_name" required><br><br>
+
+    <label for="user_city">City/Government That User Belongs To:</label><br>
+    <input type="text" id="user_city" name="user_city" required><br><br>
+
+    <label for="emergency_contact_name">Emergency Contact Name:</label><br>
+    <input type="text" id="emergency_contact_name" name="emergency_contact_name" required><br><br>
+
+    <label for="emergency_contact_phone">Emergency Contact Phone Number:</label><br>
+    <input type="tel" id="emergency_contact_phone" name="emergency_contact_phone" required><br><br>
+
+    <label for="emergency_contact_carrier">Emergency Contact Phone Carrier:</label><br>
+    <select id="emergency_contact_carrier" name="emergency_contact_carrier" required>
+        <option value="att">AT&T</option>
+        <option value="tmobile">T-Mobile</option>
+        <option value="sprint">Sprint</option>
+        <option value="verizon">Verizon</option>
+    </select><br><br>
+
+    <label for="sensitivity">Sensitivity of Crash & Pothole Detection:</label><br>
+    <input type="range" id="sensitivity" name="sensitivity" min="0" max="1" step="0.01" required><br>
+    <span id="sensitivity-value">.5</span><br><br> <!-- Span element to display sensitivity value -->
+
+    <input type="submit" value="Save Settings">
+</form>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Update sensitivity value display
+        var sensitivityInput = document.getElementById('sensitivity');
+        var sensitivityValueSpan = document.getElementById('sensitivity-value');
+        sensitivityInput.addEventListener('input', function() {
+            sensitivityValueSpan.textContent = sensitivityInput.value;
+        });
+
+        // Form validation function
+        document.getElementById('settings-form').addEventListener('submit', function(event) {
+            var inputs = document.querySelectorAll('input, select');
+            for (var i = 0; i < inputs.length; i++) {
+                if (!inputs[i].checkValidity()) {
+                    alert("Please fill out all fields.");
+                    event.preventDefault();
+                    return false;
+                }
+            }
+            return true;
+        });
+    });
+</script>
 </body>
+</html>
