@@ -231,7 +231,7 @@ def get_user():
 
 # Adds the user info
 # TODO: Need to implement this once we have users existing.
-@app.route("/api/addUser/", methods=["POST"])
+@app.route("/api/updateUser/", methods=["POST"])
 def update_user():
     user = getCurrentUserIdentifier()
 
