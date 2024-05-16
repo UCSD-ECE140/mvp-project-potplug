@@ -80,10 +80,18 @@ def getCurrentUserIdentifier():
         return userId
     except:
         return {"message": "Had error"}
+    
+# Gets Username.
+def getUserName():
+    try:
+        userId = session['user']['userinfo']['nickname']
+        return userId
+    except:
+        return {"message": "Had error"}
 
 # TODO: Implement Once database is done
-def add_user(userIdentifier):
-    print("Adding User", userIdentifier) # Example is google-oauth2|117344724568847202933
+def add_user(userIdentifier, username):
+    print("Adding User", userIdentifier, username) # Example is google-oauth2|117344724568847202933
     return {"message" : "Not implemented yet."}
 
 @app.route("/login")
@@ -96,7 +104,7 @@ def login():
 def callback():
     token = oauth.auth0.authorize_access_token()
     session["user"] = token
-    add_user(getCurrentUserIdentifier())
+    add_user(getCurrentUserIdentifier(), getUserName())
     return redirect("/dashboard")
 
 @app.route("/logout")
