@@ -73,6 +73,7 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+# Gets user identifier.
 def getCurrentUserIdentifier():
     try:
         userId = session['user']['userinfo']['sub']
@@ -82,7 +83,7 @@ def getCurrentUserIdentifier():
 
 # TODO: Implement Once database is done
 def add_user(userIdentifier):
-    print("Adding User")
+    print("Adding User", userIdentifier) # Example is google-oauth2|117344724568847202933
     return {"message" : "Not implemented yet."}
 
 @app.route("/login")
