@@ -9,11 +9,16 @@ class SerialHandler():
   ser = None
   df : pd.DataFrame
   msg_count : int
+  filename : str
+  
+  bluetooth = "COM5"
   
   def __init__(self, _df : pd.DataFrame = None) -> None:
-    self.ser = serial.Serial(port="COM5")
+    self.ser = serial.Serial(port=self.bluetooth)
     self.df = pd.DataFrame() if _df == None else _df
     self.msg_count = 0
+    self.filename = f"PotholeData/{datetime.now().strftime('%d_%m_%Y_T%H_%M_%S')}.csv"
+
   
   def receive_data_packet(self):
     message = self.ser.read_until(b"END")
@@ -29,20 +34,21 @@ class SerialHandler():
       if ':' in line:
         (label, dtype, data) = line.split(':')
         data = data.split(',')
-        entry[label] = data
-    entry['message'] = [self.msg_count for i in range(0, len(entry['DST']))]
+        entry[label] = [float(datum) for datum in data]
+    entry['message'] = [self.msg_count for i in range(0, len(entry['GYT']))]
     self.df = pd.concat([self.df, pd.DataFrame.from_dict(entry)])
   
   def save_data(self) -> str:
-    filename = f"PotholeData/{datetime.now().strftime('%d_%m_%Y_T%H_%M_%S')}.csv"
-    self.df.to_csv(path_or_buf=filename, index=False)
-    return filename
+    self.df.to_csv(path_or_buf=self.filename, index=False)
+    return self.filename
       
   def run(self):
     if self.ser.in_waiting != 0:
+      print("Message received")
       if self.ser.readline().decode().startswith("BGD"):
+        print("Sensor data detected")
         self.receive_data_packet()
-      
+        describe_data(self.df.iloc[-400:])      
   def close(self):
     self.ser.close()
 

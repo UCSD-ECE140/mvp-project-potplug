@@ -3,9 +3,9 @@
 #define COMMS_H
 
 #include <BluetoothSerial.h>
-#include "Distance.h"
 #include "Gyro.h"
 #include "Sampling.h"
+#include "Distance.h"
 
 #define BT 1 // 1 - Bluetooth on.   0 - communicate over serial
 #define DEVICE_NAME "Detector1"
@@ -37,7 +37,7 @@ struct Comms
 #endif
 
     void setup();
-    void send_data(dist_data &data, gyro_data &gyro);
+    void send_data(gyro_data &gyro, dist_data& dist);
     void send_samples(const char* label, i32_t* data);
     void send_samples(const char* label, f32_t* data);
     void send_label(const char *label);

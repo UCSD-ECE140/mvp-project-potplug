@@ -33,8 +33,8 @@ Sample_Success DistanceSensor::sample()
     digitalWrite(trigger, HIGH);
     delayMicroseconds(2);
     digitalWrite(trigger, LOW);
-    distance = pulseIn(echo, HIGH) * .0343 / 2;
-    // Serial.println(distance);
+    distance = pulseIn(echo, HIGH, 100000);
+    distance = (distance/2) / 29.1;
 
     rec->save(i, current_time, distance);
     i += 1;

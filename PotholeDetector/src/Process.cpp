@@ -1,7 +1,13 @@
 #include "Process.h"
 
-uint8_t process_data(DistanceSensor& ds, GyroSensor& gs)
+uint8_t process_data(GyroSensor &gs, DistanceSensor &ds)
 {
+#if ALWAYS_SEND
+
+    comms.send_data(*gs.save, *ds.save);
+    return 1;
+
+#else
     static const uint8_t dist_cutoff = 5;
     uint32_t last_distance = ds.save->distance[0].iValue;
     uint32_t current_distance;
@@ -15,7 +21,7 @@ uint8_t process_data(DistanceSensor& ds, GyroSensor& gs)
         // Serial.println(current_distance);
 
         if (difference > dist_cutoff)
-        {   
+        {
             pothole_flag = 1;
             break;
         }
@@ -24,8 +30,9 @@ uint8_t process_data(DistanceSensor& ds, GyroSensor& gs)
     if (pothole_flag == 1)
     {
         // Serial.println("Pothole flagged");
-        comms.send_data(*ds.save, *gs.save);
+        comms.send_data(*gs.save, *ds.save);
     }
     uint16_t time_elapsed = ds.save[SAMPLE_SIZE - 1].time - ds.save[0].time;
-    return pothole_flag;
+    return 1;
+#endif
 }
