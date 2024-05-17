@@ -150,6 +150,10 @@ def dashboard():
 def settings():
     return render_template("settings.html")
 
+@app.route("/map")
+def map():
+    return render_template("map.html")
+
 
 
 ##########################################

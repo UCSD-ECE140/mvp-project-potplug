@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1 style="margin: 0 auto;">Pothole Map</h1>
+
+<div id="googleMap" style="width: 350px; height: 700px; margin: 0 auto;"></div>
+
+<script>
+function myMap() {
+  var mapProp = {
+    center: new google.maps.LatLng(32.861016, -117.209321), // Initial center point
+    zoom: 14, // Adjusted zoom level for closer view
+  };
+  var map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
+
+  // Sample dataset of pothole locations (latitude, longitude pairs)
+  var potholes = [
+    { lat: 32.880610, lng: -117.243853 },
+    { lat: 32.878609, lng: -117.244009 },
+    { lat: 32.883981, lng: -117.243850 },
+    { lat: 32.859259, lng: -117.206596},
+    { lat: 32.861016, lng: -117.209321},
+    { lat: 32.853990, lng: -117.204458},
+    // Add more pothole locations as needed
+  ];
+
+  // Loop through the potholes array and create circle markers for each pothole
+  potholes.forEach(function(pothole) {
+    var potholeCircle = new google.maps.Circle({
+      strokeColor: '#FF0000',
+      strokeOpacity: 0.8,
+      strokeWeight: 5,
+      fillColor: '#FF0000',
+      fillOpacity: 0.35,
+      map: map,
+      center: new google.maps.LatLng(pothole.lat, pothole.lng),
+      radius: 15 // Adjust the radius of the circle as needed
+    });
+  });
+
+  // Function to update the map with the user's location
+  function updateUserLocation(position) {
+    var userLatLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+    map.setCenter(userLatLng);
+
+    var userLocationMarker = new google.maps.Marker({
+      position: userLatLng,
+      map: map,
+      title: "You are here",
+      icon: {
+        path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+        scale: 8,
+        fillColor: '#00F',
+        fillOpacity: 0.8,
+        strokeColor: '#00F',
+        strokeWeight: 2
+      }
+    });
+  }
+
+  // Use HTML5 Geolocation API to get the user's current position
+  if (navigator.geolocation) {
+    navigator.geolocation.watchPosition(updateUserLocation, function(error) {
+      console.error("Error getting user location: ", error);
+    }, {
+      enableHighAccuracy: true,
+      maximumAge: 0,
+      timeout: 60000
+    });
+  } else {
+    console.error("Geolocation is not supported by this browser.");
+  }
+}
+</script>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCenQtBD0vngzEW0PE8dd_klQfms7QHWAo&callback=myMap"></script>
+
+</body>
+</html>
