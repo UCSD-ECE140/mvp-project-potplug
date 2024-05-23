@@ -195,8 +195,8 @@ def speedbumpDetected(loc, incident, user_id, date, time, severity, readings):
 # TODO: Once user database is implemented, replace getUserName() with get user.
 # TODO: Update crash logging
 def crashDetected(loc, incident, user_id, date, time, severity, readings):
-    messageEmergencyContact(loc, getUserName()) # Replace with User Name, instead of username.
-    db.report_incident(loc[0], loc[1], user_id, date, time, severity)
+    #messageEmergencyContact(loc, getUserName()) # Replace with User Name, instead of username.
+    db.report_incident(loc[0], loc[1], user_id, date, time, severity, incident)
     return {}
 
 
@@ -209,7 +209,7 @@ def crashDetected(loc, incident, user_id, date, time, severity, readings):
 # TODO : Implement pulling from database.
 @app.route("/api/incidents")
 def get_incidents():
-    
+    type_of_incident("Crash", (40.7128, -74.0060), 2, "google-oauth2|117344724568847202933", [0,0,0,0,0])
     print("All stuff in db: ", db.get_all_incidents())  #We will need to eventually use this to access db.
     print("Pothole: ", db.get_all_potholes())
     print(db.fetch_nearby_potholes(40.7128, -74.0060, 400))
