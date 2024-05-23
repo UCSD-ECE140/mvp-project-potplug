@@ -198,3 +198,14 @@ def get_all_incidents():
             return incidents
     finally:
         connection.close()
+
+# Get all incidents
+def get_all_potholes():
+    connection = connect_to_database()
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT * FROM potholes")
+            incidents = cursor.fetchall()
+            return incidents
+    finally:
+        connection.close()

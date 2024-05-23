@@ -211,7 +211,8 @@ def crashDetected(loc, incident, user_id, date, time, severity, readings):
 def get_incidents():
     
     print("All stuff in db: ", db.get_all_incidents())  #We will need to eventually use this to access db.
-
+    print("Pothole: ", db.get_all_potholes())
+    print(db.fetch_nearby_potholes(40.7128, -74.0060, 400))
     test_data = {
         "id": 0,
         "incident": "Pothole",
