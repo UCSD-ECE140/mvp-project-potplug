@@ -7,7 +7,7 @@
 #include "Sampling.h"
 #include "Distance.h"
 
-#define BT 1 // 1 - Bluetooth on.   0 - communicate over serial
+#define BT 0 // 1 - Bluetooth on.   0 - communicate over serial
 #define DEVICE_NAME "Detector1"
 
 #define BEGIN_DATA "BGD"
