@@ -28,21 +28,39 @@ Sample_Success DistanceSensor::sample()
         i = 0;
         result = BUF_FULL;
     }
+    int triggerPin = trigger;
+    int echoPin = echo;
+    noInterrupts(); // Disable interrupts
 
-    uint32_t distance;
-    digitalWrite(trigger, HIGH);
+    // Send trigger pulse
+    digitalWrite(triggerPin, LOW);
     delayMicroseconds(2);
-    digitalWrite(trigger, LOW);
-    distance = pulseIn(echo, HIGH, 100000);
-    distance = (distance/2) / 29.1;
+    digitalWrite(triggerPin, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(triggerPin, LOW);
+
+    // Wait for echo pulse to start
+    while (digitalRead(echoPin) == LOW)
+        ;
+
+    // Measure echo pulse length
+    uint32_t pulseStart = micros();
+    while (digitalRead(echoPin) == HIGH)
+        ;
+    uint32_t pulseLength = micros() - pulseStart;
+
+    interrupts(); // Re-enable interrupts
+
+    // Calculate distance
+    float distance = pulseLength / 58.0;
 
     rec->save(i, current_time, distance);
     i += 1;
     return result;
 }
 
-void dist_data::save(uint32_t i, uint32_t _time, uint32_t _dist) {
-    time[i].iValue = _time;
-    distance[i].iValue = _dist;
+void dist_data::save(uint32_t i, uint32_t _time, float _dist)
+{
+    time[i] = _time;
+    distance[i] = _dist;
 }
-

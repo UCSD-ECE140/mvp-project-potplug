@@ -13,8 +13,8 @@ enum Cores
 
 // Distance sensor
 DistanceSensor d_sensor;
-const uint8_t echo_pin = 32;
-const uint8_t trig_pin = 33;
+const uint8_t echoPin = 32;
+const uint8_t triggerPin = 33;
 
 // Sensor sampling task
 void sample_sensors(void *p);
@@ -33,6 +33,10 @@ void setup()
     Serial.begin(115200);
     // Setup comms and wait until connnected
     comms.setup();
+    d_sensor.setup(triggerPin, echoPin);
+    g_sensor.setup();
+    pinMode(echoPin, INPUT);
+    pinMode(triggerPin, OUTPUT);
 
     // Set data_process semaphore to 0
     data_process = xSemaphoreCreateBinary();
@@ -45,43 +49,28 @@ void setup()
         NULL,
         0,
         sensor_sampling);
-
-    xTaskCreate(
-        process,
-        process_name,
-        4000,
-        NULL,
-        0,
-        processing);
-
-    vTaskDelete(NULL);
 }
 
-// Never reached
 void loop()
 {
+    process(nullptr);
 }
 
 void process(void *p)
-{    while (1)
-    {
-        if (xSemaphoreTake(data_process, portMAX_DELAY))
+{   
+        if (xSemaphoreTake(data_process, 0))
         {
             process_data(g_sensor, d_sensor);
         }
-        vTaskDelay(5 / portTICK_PERIOD_MS);
-    }
 }
 
 void sample_sensors(void *p)
 {
-    uint32_t last_sample_time = micros();
     uint32_t current_time;
-    d_sensor.setup(trig_pin, echo_pin);
-    g_sensor.setup();
-
+    uint32_t last_sample_time = micros();
     while (1)
-    {   current_time = micros();
+    {   
+        current_time = micros();
         if(current_time - last_sample_time >= SAMPLE_PERIOD_US) {
             d_sensor.sample();
             if (g_sensor.sample() == BUF_FULL)
@@ -92,4 +81,5 @@ void sample_sensors(void *p)
 
         }
     }
+    
 }

@@ -33,28 +33,28 @@ void Comms::send_data(gyro_data& gyro, dist_data& dist) {
     
 }
 
-void Comms::send_samples(const char* label, i32_t* data) {
+void Comms::send_samples(const char* label, uint32_t* data) {
     send_label(label);
     Serial.print(':');
     Serial.print('i');
     Serial.print(':');
-    Serial.print(data[0].iValue);
+    Serial.print(data[0]);
     for(int i = 1; i < SAMPLE_SIZE; i++) {
         Serial.print(',');
-        Serial.print(data[i].iValue);
+        Serial.print(data[i]);
     }
     end_line();
 }
 
-void Comms::send_samples(const char* label, f32_t* data) {
+void Comms::send_samples(const char* label, float* data) {
     send_label(label);
     Serial.print(':');
     Serial.print('f');
     Serial.print(':');
-    Serial.print(data[0].fValue);
+    Serial.print(data[0]);
     for(int i = 1; i < SAMPLE_SIZE; i++) {
         Serial.print(',');
-        Serial.print(data[i].fValue);
+        Serial.print(data[i]);
     }
     end_line();
 
