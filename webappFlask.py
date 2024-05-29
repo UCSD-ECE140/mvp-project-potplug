@@ -268,9 +268,9 @@ def type_of_incident(loc, incident, user, severity, readings):
     user_id = user
 
     if(incident == "Pothole"):
-       potholeDetected(loc, incident, user_id, date, time, severity, readings)
+        potholeDetected(loc, incident, user_id, date, time, severity, readings)
     if(incident == "Speedbump"):
-       speedbumpDetected(loc, incident, user_id, date, time, severity, readings)
+        speedbumpDetected(loc, incident, user_id, date, time, severity, readings)
     if(incident == "Crash"):
         crashDetected(loc, incident, user_id, date, time, severity, readings)
 
