@@ -160,12 +160,12 @@ def map():
 #            Helper Functions            #
 ##########################################
 
-# TODO: Update once we have db updated.
-def potholeDetected(loc, incident, user_id, date, time, severity, readings):
-   db.report_pothole(loc[0], loc[1])
+# Reports Pothole 
+def potholeDetected(loc, incident, user_id, severity, readings):
+    db.report_pothole(loc[0], loc[1], readings[0], readings[1], readings[2:], severity, date_time=None)
 
 # Should probably be using a user and then get userInfo characteristics from that.
-#Can switch to twilio potentially but need to find carrier
+# Can switch to twilio potentially but need to find carrier
 def messageEmergencyContact(location, userInfo):
     phone_email = f"{userInfo['phoneNum']}" + CARRIERS[userInfo['carrier']]
     message = f"{userInfo['user']} has experienced a car incident at {location}"
@@ -196,8 +196,8 @@ def speedbumpDetected(loc, incident, user_id, date, time, severity, readings):
 # TODO: Update crash logging
 def crashDetected(loc, incident, user_id, date, time, severity, readings):
     messageEmergencyContact(loc, getUserName()) # Replace with User Name, instead of username.
-    db.report_incident(loc[0], loc[1], user_id, date, time, severity)
-    return {}
+    db.report_incident(loc[0], loc[1], user_id, date, time, severity, incident)
+    return {"Worked Successfully"}
 
 
 
@@ -225,10 +225,9 @@ def get_incidents():
     return jsonify([test_data])
 
 # Delete Incident
-# TODO: Implement once db delete function is done.
 @app.route("/api/incidents/<int:id>", methods=["DELETE"])
 def delete_incident(id):
-    # Logic to delete an incident
+    db.delete_pothole(id)
     return {"message": "Incident deleted successfully"}
 
 # Gets the user info
@@ -236,8 +235,7 @@ def delete_incident(id):
 @app.route("/api/getUserInfo/",)
 def get_user():
     try:
-        getCurrentUserIdentifier()
-        return None
+        return getCurrentUserIdentifier()
     except:
         return {"message": "Had error"}
 
@@ -264,9 +262,10 @@ def update_user():
 
 # Calls Respective Incident Type In Case We Need It:
 @app.route("/api/addIncident/", methods=["POST"])
-def type_of_incident(incident, loc, severity, user_id, readings):
+def type_of_incident(loc, incident, user, severity, readings):
     date = datetime.datetime.now().date()
     time = datetime.datetime.now().time()
+    user_id = user
 
     if(incident == "Pothole"):
        potholeDetected(loc, incident, user_id, date, time, severity, readings)
