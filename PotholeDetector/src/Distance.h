@@ -7,10 +7,11 @@
 
 
 struct dist_data {
-    i32_t 
-      time[SAMPLE_SIZE],
+    uint32_t 
+      time[SAMPLE_SIZE];
+    float
       distance [SAMPLE_SIZE];
-    void save(uint32_t i, uint32_t _time, uint32_t _dist);
+    void save(uint32_t i, uint32_t _time, float _dist);
 };
 
 struct DistanceSensor {

@@ -7,9 +7,9 @@
 
 struct gyro_data
 {
-  i32_t 
+  uint32_t 
       time[SAMPLE_SIZE];
-  f32_t
+  float
       a_x [SAMPLE_SIZE],
       a_y [SAMPLE_SIZE],
       a_z [SAMPLE_SIZE],
