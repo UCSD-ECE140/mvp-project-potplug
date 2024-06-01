@@ -164,23 +164,31 @@ def map():
 def potholeDetected(loc, incident, user_id, severity, readings):
     db.report_pothole(loc[0], loc[1], readings[0], readings[1], readings[2:], severity, date_time=None)
 
+# TODO: Update UserInfo To Pull User From Database and Find Respective Fields
 # Should probably be using a user and then get userInfo characteristics from that.
 # Can switch to twilio potentially but need to find carrier
 def messageEmergencyContact(location, userInfo):
-    phone_email = f"{userInfo['phoneNum']}" + CARRIERS[userInfo['carrier']]
-    message = f"{userInfo['user']} has experienced a car incident at {location}"
+    try:
+        #TODO: This line needs to be changed.
+        userInfo = {"user":"Adrian", "phoneNum":8582618935, "carrier":"tmobile","sensitivity":6,"emergencyContact":"Adrian", "emergencyContactPhoneNumber":8582618935}
+        
+        # Access Stuff
+        phone_email = f"{userInfo['phoneNum']}" + CARRIERS[userInfo['carrier']]
+        message = f"{userInfo['user']} has experienced a car incident at {location}"
 
-    # Email server configuration
-    sender_email = "potplugtesting@gmail.com"  # Normal Email - pass is Testing123~
-    password = "pwrplsmoecjduvnr"  # App Password
+        # Email server configuration
+        sender_email = "potplugtesting@gmail.com"  # Normal Email - pass is Testing123~
+        password = "pwrplsmoecjduvnr"  # App Password
+    except:
+        print("Failed to find user.")
+        return {"User Not Found."}
 
+    # Sends Message
     try:
         server = smtplib.SMTP("smtp.gmail.com", 587)
         server.starttls() 
         
         server.login(sender_email, password)
-        
-        # Send the email
         server.sendmail(sender_email, phone_email, message)
         print("Text message sent successfully!")
     except Exception as e:
@@ -188,14 +196,13 @@ def messageEmergencyContact(location, userInfo):
     finally:
         server.quit()
 
-# TODO: Implement logging once speedbump functionality is added.
+# NOTE: Implement logging once speedbump functionality is added.
 def speedbumpDetected(loc, incident, user_id, date, time, severity, readings):
     return {"message" : "Need to add speedbump functionality later."}
 
-# TODO: Once user database is implemented, replace getUserName() with get user.
-# TODO: Update crash logging
+# Sends message to emergency contact and adds incident to database
 def crashDetected(loc, incident, user_id, date, time, severity, readings):
-    messageEmergencyContact(loc, getUserName()) # Replace with User Name, instead of username.
+    messageEmergencyContact(loc, user_id)
     db.report_incident(loc[0], loc[1], user_id, date, time, severity, incident)
     return {"Worked Successfully"}
 
@@ -232,7 +239,7 @@ def delete_incident(id):
 
 # Gets the user info
 # TODO: Need to implement this once we have user info storing.
-@app.route("/api/getUserInfo/",)
+@app.route("/api/getUserInfo/")
 def get_user():
     try:
         return getCurrentUserIdentifier()
@@ -247,11 +254,13 @@ def update_user():
 
     if user is None:
         return jsonify({"error": "User not found"}), 404
-
+    
     data = request.form.to_dict()
 
     required_fields = ['emergency_contact_name', 'emergency_contact_phone', 'emergency_contact_carrier',
                        'user_phone', 'user_carrier', 'user_name', 'sensitivity', 'user_city']
+    
+    print(required_fields)
 
     for field in required_fields:
         if field not in data:
@@ -265,7 +274,7 @@ def update_user():
 def type_of_incident(loc, incident, user, severity, readings):
     date = datetime.datetime.now().date()
     time = datetime.datetime.now().time()
-    user_id = user
+    user_id = get_user()
 
     if(incident == "Pothole"):
         potholeDetected(loc, incident, user_id, date, time, severity, readings)
@@ -281,6 +290,4 @@ def type_of_incident(loc, incident, user, severity, readings):
 ##########################################
 
 if __name__ == "__main__":
-    #userInfo = {"user":"Adrian", "phoneNum":8582618935, "carrier":"tmobile","sensitivity":6,"emergencyContact":"Adrian", "emergencyContactPhoneNumber":8582618935}
-    #messageEmergencyContact(loc_sample, userInfo)
     app.run(host="0.0.0.0", port=6543)
