@@ -205,7 +205,22 @@ def get_all_potholes():
     try:
         with connection.cursor() as cursor:
             cursor.execute("SELECT * FROM potholes")
-            incidents = cursor.fetchall()
-            return incidents
+            potholes_result = cursor.fetchall()
+            potholes = []
+            for ph in potholes_result:
+                potholes.append(ph)
+            return potholes
+    finally:
+        connection.close()
+
+
+# Get user information by user identifier
+def get_user(user_identifier):
+    connection = connect_to_database()
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT * FROM users WHERE user_token = %s", (user_identifier,))
+            user = cursor.fetchone()
+            return user
     finally:
         connection.close()
