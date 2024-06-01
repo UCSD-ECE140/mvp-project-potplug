@@ -6,7 +6,7 @@
 #include "Comms.h"
 #include "Distance.h"
 
-#define ALWAYS_SEND 1
+#define ALWAYS_SEND 0
 
 const uint32_t process_stack_depth = 10000;
 const char process_name[] = "Process Data";

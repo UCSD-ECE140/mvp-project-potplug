@@ -8,6 +8,7 @@ from urllib.parse import quote_plus, urlencode
 import smtplib
 import databaseSample.db_utility as db
 import datetime
+from decimal import Decimal
 
 
 ##########################################
@@ -160,27 +161,35 @@ def map():
 #            Helper Functions            #
 ##########################################
 
-# TODO: Update once we have db updated.
-def potholeDetected(loc, incident, user_id, date, time, severity, readings):
-   db.report_pothole(loc[0], loc[1])
+# Reports Pothole 
+def potholeDetected(loc, incident, user_id, severity, readings):
+    db.report_pothole(loc[0], loc[1], readings[0], readings[1], readings[2:], severity, date_time=None)
 
+# TODO: Update UserInfo To Pull User From Database and Find Respective Fields
 # Should probably be using a user and then get userInfo characteristics from that.
-#Can switch to twilio potentially but need to find carrier
+# Can switch to twilio potentially but need to find carrier
 def messageEmergencyContact(location, userInfo):
-    phone_email = f"{userInfo['phoneNum']}" + CARRIERS[userInfo['carrier']]
-    message = f"{userInfo['user']} has experienced a car incident at {location}"
+    try:
+        #TODO: This line needs to be changed.
+        userInfo = {"user":"Adrian", "phoneNum":8582618935, "carrier":"tmobile","sensitivity":6,"emergencyContact":"Adrian", "emergencyContactPhoneNumber":8582618935}
+        
+        # Access Stuff
+        phone_email = f"{userInfo['phoneNum']}" + CARRIERS[userInfo['carrier']]
+        message = f"{userInfo['user']} has experienced a car incident at {location}"
 
-    # Email server configuration
-    sender_email = "potplugtesting@gmail.com"  # Normal Email - pass is Testing123~
-    password = "pwrplsmoecjduvnr"  # App Password
+        # Email server configuration
+        sender_email = "potplugtesting@gmail.com"  # Normal Email - pass is Testing123~
+        password = "pwrplsmoecjduvnr"  # App Password
+    except:
+        print("Failed to find user.")
+        return {"User Not Found."}
 
+    # Sends Message
     try:
         server = smtplib.SMTP("smtp.gmail.com", 587)
         server.starttls() 
         
         server.login(sender_email, password)
-        
-        # Send the email
         server.sendmail(sender_email, phone_email, message)
         print("Text message sent successfully!")
     except Exception as e:
@@ -188,56 +197,63 @@ def messageEmergencyContact(location, userInfo):
     finally:
         server.quit()
 
-# TODO: Implement logging once speedbump functionality is added.
+# NOTE: Implement logging once speedbump functionality is added.
 def speedbumpDetected(loc, incident, user_id, date, time, severity, readings):
     return {"message" : "Need to add speedbump functionality later."}
 
-# TODO: Once user database is implemented, replace getUserName() with get user.
-# TODO: Update crash logging
+# Sends message to emergency contact and adds incident to database
 def crashDetected(loc, incident, user_id, date, time, severity, readings):
-    messageEmergencyContact(loc, getUserName()) # Replace with User Name, instead of username.
-    db.report_incident(loc[0], loc[1], user_id, date, time, severity)
-    return {}
+    messageEmergencyContact(loc, user_id)
+    db.report_incident(loc[0], loc[1], user_id, date, time, severity, incident)
+    return {"Worked Successfully"}
 
+# Formats Incident Type Based off Of Incident Data
+# NOTE: We may want to 
+def format_incident(incident_data):
+    id, lat, lon, severity, date, time, readings_id, incident_type = incident_data
+    loc_sample = {"lat": float(lat), "lon": float(lon)}
 
+    incident_description = {
+        'pothole': f"Pothole at location {loc_sample} with a severity of {severity}. Occured at {date}, {time}.",
+        'speed bump': f"Speed bump at location {loc_sample} with a severity of {severity}. Occured at {date}, {time}.",
+        'crash': f"Crash at location {loc_sample} with a severity of {severity}. Occured at {date}, {time}."
+    }
+
+    return {
+        "id": id,
+        "incident": incident_description[incident_type],
+        "loc": loc_sample,
+        "severity": severity,
+        "readings": None
+    }
 
 ##########################################
 #              API Functions             #
 ##########################################
 
-# Get All Incidents From Database
-# TODO : Implement pulling from database.
+# Get All Incidents & Format From Database
 @app.route("/api/incidents")
 def get_incidents():
+    # Fetch all incidents from the database
+    incidents = db.get_all_incidents()
     
-    print("All stuff in db: ", db.get_all_incidents())  #We will need to eventually use this to access db.
-    print("Pothole: ", db.get_all_potholes())
-    print(db.fetch_nearby_potholes(40.7128, -74.0060, 400))
-    test_data = {
-        "id": 0,
-        "incident": "Pothole",
-        "loc": loc_sample,
-        "severity": 0.35,
-        "readings": pothole_data
-    } 
+    # Format the incidents
+    formatted_incidents = [format_incident(incident) for incident in incidents]
 
-    # Return the incident data as JSON
-    return jsonify([test_data])
+    return jsonify(formatted_incidents)
 
 # Delete Incident
-# TODO: Implement once db delete function is done.
 @app.route("/api/incidents/<int:id>", methods=["DELETE"])
 def delete_incident(id):
-    # Logic to delete an incident
+    db.delete_pothole(id)
     return {"message": "Incident deleted successfully"}
 
 # Gets the user info
 # TODO: Need to implement this once we have user info storing.
-@app.route("/api/getUserInfo/",)
+@app.route("/api/getUserInfo/")
 def get_user():
     try:
-        getCurrentUserIdentifier()
-        return None
+        return getCurrentUserIdentifier()
     except:
         return {"message": "Had error"}
 
@@ -245,33 +261,44 @@ def get_user():
 # TODO: Need to implement this once we have users existing.
 @app.route("/api/updateUser/", methods=["POST"])
 def update_user():
-    user = getCurrentUserIdentifier()
 
-    if user is None:
-        return jsonify({"error": "User not found"}), 404
+    # Check if user exists: This will need to be changed to the get method from database.
+    user = getCurrentUserIdentifier() 
 
+    try:
+        if user is None or user == getCurrentUserIdentifier():  # Remove or
+            db.add_user(getCurrentUserIdentifier(), getUserName())
+    except:
+        print("Line 259 Failed.")
+    
     data = request.form.to_dict()
 
     required_fields = ['emergency_contact_name', 'emergency_contact_phone', 'emergency_contact_carrier',
                        'user_phone', 'user_carrier', 'user_name', 'sensitivity', 'user_city']
+    
+    print(data)
 
     for field in required_fields:
         if field not in data:
             # Should create user with None filling all of the missing fields.
             return jsonify({"error": f"Missing required field: {field}"}), 400
-    print(data)
+    
+    db.update_user(getCurrentUserIdentifier(), data['user_name'], data['emergency_contact_name'],
+                data['emergency_contact_phone'], data['emergency_contact_carrier'],
+                data['user_phone'], data['user_carrier'], data['sensitivity'], data['user_city'])
     return redirect(url_for('dashboard'))
 
 # Calls Respective Incident Type In Case We Need It:
 @app.route("/api/addIncident/", methods=["POST"])
-def type_of_incident(incident, loc, severity, user_id, readings):
+def type_of_incident(loc, incident, user, severity, readings):
     date = datetime.datetime.now().date()
     time = datetime.datetime.now().time()
+    user_id = get_user()
 
     if(incident == "Pothole"):
-       potholeDetected(loc, incident, user_id, date, time, severity, readings)
+        potholeDetected(loc, incident, user_id, date, time, severity, readings)
     if(incident == "Speedbump"):
-       speedbumpDetected(loc, incident, user_id, date, time, severity, readings)
+        speedbumpDetected(loc, incident, user_id, date, time, severity, readings)
     if(incident == "Crash"):
         crashDetected(loc, incident, user_id, date, time, severity, readings)
 
@@ -282,6 +309,4 @@ def type_of_incident(incident, loc, severity, user_id, readings):
 ##########################################
 
 if __name__ == "__main__":
-    #userInfo = {"user":"Adrian", "phoneNum":8582618935, "carrier":"tmobile","sensitivity":6,"emergencyContact":"Adrian", "emergencyContactPhoneNumber":8582618935}
-    #messageEmergencyContact(loc_sample, userInfo)
     app.run(host="0.0.0.0", port=6543)

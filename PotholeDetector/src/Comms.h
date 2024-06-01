@@ -7,7 +7,7 @@
 #include "Sampling.h"
 #include "Distance.h"
 
-#define BT 1 // 1 - Bluetooth on.   0 - communicate over serial
+#define BT 0 // 1 - Bluetooth on.   0 - communicate over serial
 #define DEVICE_NAME "Detector1"
 
 #define BEGIN_DATA "BGD"
@@ -38,8 +38,8 @@ struct Comms
 
     void setup();
     void send_data(gyro_data &gyro, dist_data& dist);
-    void send_samples(const char* label, i32_t* data);
-    void send_samples(const char* label, f32_t* data);
+    void send_samples(const char* label, uint32_t* data);
+    void send_samples(const char* label, float* data);
     void send_label(const char *label);
     uint8_t isConnected();
 };

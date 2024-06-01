@@ -62,9 +62,7 @@
                     const incidentDiv = document.createElement('div');
                     incidentDiv.classList.add('incident');
                     
-                    const htmlContent = `
-                        <p><strong>Recent Incident:</strong> ${incident.incident} at location ${incident.loc} with a severity of ${incident.severity}. The pothole has a length of ${incident.readings[0]} cm and a depth of ${incident.readings[1]} cm.</p>
-                    `;
+                    const htmlContent = `<p><strong>Recent Incident:</strong> ${incident.incident}</p>`;
                     
                     
                     incidentDiv.innerHTML = htmlContent;
