@@ -8,6 +8,7 @@ from urllib.parse import quote_plus, urlencode
 import smtplib
 import databaseSample.db_utility as db
 import datetime
+from decimal import Decimal
 
 
 ##########################################
@@ -206,30 +207,40 @@ def crashDetected(loc, incident, user_id, date, time, severity, readings):
     db.report_incident(loc[0], loc[1], user_id, date, time, severity, incident)
     return {"Worked Successfully"}
 
+# Formats Incident Type Based off Of Incident Data
+# NOTE: We may want to 
+def format_incident(incident_data):
+    id, lat, lon, severity, date, time, readings_id, incident_type = incident_data
+    loc_sample = {"lat": float(lat), "lon": float(lon)}
 
+    incident_description = {
+        'pothole': f"Pothole at location {loc_sample} with a severity of {severity}. Occured at {date}, {time}.",
+        'speed bump': f"Speed bump at location {loc_sample} with a severity of {severity}. Occured at {date}, {time}.",
+        'crash': f"Crash at location {loc_sample} with a severity of {severity}. Occured at {date}, {time}."
+    }
+
+    return {
+        "id": id,
+        "incident": incident_description[incident_type],
+        "loc": loc_sample,
+        "severity": severity,
+        "readings": None
+    }
 
 ##########################################
 #              API Functions             #
 ##########################################
 
-# Get All Incidents From Database
-# TODO : Implement pulling from database.
+# Get All Incidents & Format From Database
 @app.route("/api/incidents")
 def get_incidents():
+    # Fetch all incidents from the database
+    incidents = db.get_all_incidents()
     
-    print("All stuff in db: ", db.get_all_incidents())  #We will need to eventually use this to access db.
-    print("Pothole: ", db.get_all_potholes())
-    print(db.fetch_nearby_potholes(40.7128, -74.0060, 400))
-    test_data = {
-        "id": 0,
-        "incident": "Pothole",
-        "loc": loc_sample,
-        "severity": 0.35,
-        "readings": pothole_data
-    } 
+    # Format the incidents
+    formatted_incidents = [format_incident(incident) for incident in incidents]
 
-    # Return the incident data as JSON
-    return jsonify([test_data])
+    return jsonify(formatted_incidents)
 
 # Delete Incident
 @app.route("/api/incidents/<int:id>", methods=["DELETE"])
@@ -254,8 +265,11 @@ def update_user():
     # Check if user exists: This will need to be changed to the get method from database.
     user = getCurrentUserIdentifier() 
 
-    if user is None or user == getCurrentUserIdentifier():  # Remove or
-        db.add_user(getCurrentUserIdentifier(), getUserName())
+    try:
+        if user is None or user == getCurrentUserIdentifier():  # Remove or
+            db.add_user(getCurrentUserIdentifier(), getUserName())
+    except:
+        print("Line 259 Failed.")
     
     data = request.form.to_dict()
 
