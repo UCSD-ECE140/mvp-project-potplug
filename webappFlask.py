@@ -250,23 +250,28 @@ def get_user():
 # TODO: Need to implement this once we have users existing.
 @app.route("/api/updateUser/", methods=["POST"])
 def update_user():
-    user = getCurrentUserIdentifier()
 
-    if user is None:
-        return jsonify({"error": "User not found"}), 404
+    # Check if user exists: This will need to be changed to the get method from database.
+    user = getCurrentUserIdentifier() 
+
+    if user is None or user == getCurrentUserIdentifier():  # Remove or
+        db.add_user(getCurrentUserIdentifier(), getUserName())
     
     data = request.form.to_dict()
 
     required_fields = ['emergency_contact_name', 'emergency_contact_phone', 'emergency_contact_carrier',
                        'user_phone', 'user_carrier', 'user_name', 'sensitivity', 'user_city']
     
-    print(required_fields)
+    print(data)
 
     for field in required_fields:
         if field not in data:
             # Should create user with None filling all of the missing fields.
             return jsonify({"error": f"Missing required field: {field}"}), 400
-    print(data)
+    
+    db.update_user(getCurrentUserIdentifier(), data['user_name'], data['emergency_contact_name'],
+                data['emergency_contact_phone'], data['emergency_contact_carrier'],
+                data['user_phone'], data['user_carrier'], data['sensitivity'], data['user_city'])
     return redirect(url_for('dashboard'))
 
 # Calls Respective Incident Type In Case We Need It:
