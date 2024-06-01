@@ -1,4 +1,5 @@
 package com.example.myapplication
+import android.util.Log
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -31,21 +32,22 @@ public class InteractAPI : Runnable {
 
         var postBody : String = "{loc: " + loc + ", incident: " + incident + ", user: " + user + ", severity: " + severity + "readings: {" + theData + "}}"
         val request = Request.Builder()
-                    .url("http://192.168.1.148:6543/api/addIncident")
+                    .url("/addIncident")
                     .post(postBody.toRequestBody())
                     .build()
         val client = OkHttpClient()
         client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) throw IOException("Unexpected code $response")
             else {
-                println(response.body?.string())
+                Log.d("HTML response", response.body.toString())
             }
         }
     }
 
     fun process(){
         if(!incoming.isEmpty()){
-            val data: List<Int> = incoming.split(",").map{ it.trim().toInt() }
+            incoming = incoming.split(":").last()
+            val data: List<Float> = incoming.split(",").map{ it.trim().replace("END","").trim().toFloat()}
 
             //Perform processing on data
         }
@@ -87,8 +89,10 @@ public class InteractAPI : Runnable {
                     incoming = ""
                 }
                 if(currType == DataType.End){
+                    if(incident.isNotBlank() || severity.isNotBlank()){
                     uploadData()
                     theData = ""
+                    }
                 }
                 else{
                     incoming += theMessage
