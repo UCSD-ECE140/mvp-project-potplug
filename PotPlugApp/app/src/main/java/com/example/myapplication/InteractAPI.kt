@@ -1,45 +1,78 @@
 package com.example.myapplication
 import android.util.Log
+import android.widget.Toast
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 import java.io.InputStream
+import io.ktor.client.*
+import io.ktor.client.request.*
+import io.ktor.client.features.json.*
+import io.ktor.client.features.json.serializer.*
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.readText
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 
-public class InteractAPI(aStream: InputStream) : Runnable {
+
+public class InteractAPI(aStream: InputStream?) : Runnable {
 
 
-    var theStream: InputStream = aStream
+    var theStream: InputStream = aStream!!
     var incoming : String = ""
     var theData : String = ""
     var incident : String = ""
     var severity : String = ""
     var dataMap : MutableMap<String, List<Float>> = mutableMapOf()
 
+    @Serializable
+    data class Incident(
+        val loc: Pair<Double, Double>,
+        val incident: String,
+        val user: String,
+        val severity: Double,
+        val readings: Map<String, List<Float>>
+    )
 
-    fun uploadData(){
-        try {
-            var loc: List<String> = listOf("Test", "Location")
-            var user: String = "Henri Schulz"
-
-            var postBody: String =
-                "{loc: " + loc + ", incident: " + incident + ", user: " + user + ", severity: " + severity + "readings: {" + theData + "}}"
-            val request = Request.Builder()
-                .url("https://arosing.pythonanywhere.com/api/addIncident")
-                .post(postBody.toRequestBody())
-                .build()
-            val client = OkHttpClient()
-            client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) throw IOException("Unexpected code $response")
-                else {
-                    Log.d("HTML response", response.body.toString())
-                }
+    suspend fun post(postBody : Incident) : String {
+        val client = HttpClient() {
+            install(JsonFeature) {
+                serializer = KotlinxSerializer()
             }
         }
-        catch (e: Exception){
+
+        val response: HttpResponse = client.post("https://arosing.pythonanywhere.com/api/addIncident") {
+            contentType(ContentType.Application.Json)
+            body = postBody
+        }
+
+        if(response.status.value != HttpStatusCode.OK.value){
+            Log.e("HTTP Error", response.toString())
+            return response.readText()
+        }
+        Log.d("Response", response.readText())
+        return response.readText()
+    }
+
+    suspend fun uploadData(){
+        try {
+            val loc: Pair<Double, Double> = Pair(32.8812, -117.2344)
+            val user: String = "Henri Schulz"
+            val postBody: Incident = Incident(loc, incident, user, severity.toDouble(), dataMap)
+            post(postBody)
+        } catch (e : Exception) {
             Log.e("HTTP Error", e.toString())
         }
     }
+
 
     fun process() : Boolean {
         Log.d("BT Data", incoming)
@@ -69,7 +102,7 @@ public class InteractAPI(aStream: InputStream) : Runnable {
             }
             this.incident = classification.first
             this.severity = classification.second
-
+            
             Log.d("Incident", incident)
             Log.d("Severity", severity.toString())
             return true
@@ -91,7 +124,10 @@ public class InteractAPI(aStream: InputStream) : Runnable {
                 if(theMessage.contains("END")){
                     incoming += theMessage.substring(0, theMessage.indexOf("END"))
                     if(process()) {
-                        uploadData()
+                        val coroutineScope = CoroutineScope(Dispatchers.IO)
+                        coroutineScope.launch {
+                            uploadData()
+                        }
                     }
                     incoming = ""
                 }
