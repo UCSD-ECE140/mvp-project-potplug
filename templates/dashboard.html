@@ -49,6 +49,11 @@
     </section>
     </main>
 
+    <section id="testing">
+        <h2>Testing</h2>
+        <button id="testFuncButton">Call testFunc</button>
+    </section>
+
     <!-- JavaScript Code -->
     <script>
         // Fetch incident data from the API
@@ -64,7 +69,6 @@
                     
                     const htmlContent = `<p><strong>Recent Incident:</strong> ${incident.incident}</p>`;
                     
-                    
                     incidentDiv.innerHTML = htmlContent;
                     incidentList.appendChild(incidentDiv);
                 });
@@ -72,5 +76,11 @@
             .catch(error => {
                 console.error('Error fetching incident data:', error);
             });
+        
+            document.getElementById('testFuncButton').addEventListener('click', function() {
+            fetch('/test-func', {
+                method: 'POST'
+            }).then(response => response.json())
+        });
     </script>
 </body>

@@ -143,6 +143,11 @@ def home():
 @app.route("/dashboard")
 @login_required   #Requires Being Logged In.
 def dashboard():
+    try: 
+        db.add_user(getCurrentUserIdentifier(), getUserName())
+        print("Added user: ", getUserName())
+    except:
+        print("User Exists.")
     return render_template("dashboard.html")
 
 # Settings page
@@ -211,8 +216,11 @@ def format_incident(incident_data):
 
     incident_description = {
         'pothole': f"Pothole at location {loc_sample} with a severity of {severity}. Occured at {date}, {time}.",
+        'Pothole': f"Pothole at location {loc_sample} with a severity of {severity}. Occured at {date}, {time}.",
+        'Speedbump': f"Speed bump at location {loc_sample} with a severity of {severity}. Occured at {date}, {time}.",
         'speed bump': f"Speed bump at location {loc_sample} with a severity of {severity}. Occured at {date}, {time}.",
-        'crash': f"Crash at location {loc_sample} with a severity of {severity}. Occured at {date}, {time}."
+        'crash': f"Crash at location {loc_sample} with a severity of {severity}. Occured at {date}, {time}.",
+        'Crash': f"Crash at location {loc_sample} with a severity of {severity}. Occured at {date}, {time}."
     }
 
     return {
@@ -248,7 +256,6 @@ def delete_incident(id):
     return {"message": "Incident deleted successfully"}
 
 # Gets the user info
-# TODO: Need to implement this once we have user info storing.
 @app.route("/api/getUserInfo/")
 def get_user():
     try:
@@ -300,6 +307,15 @@ def type_of_incident(loc, incident, user, severity, readings):
     if(incident == "Crash"):
         crashDetected(loc, incident, user_id, date, time, severity, readings)
 
+
+
+##########################################
+#                Testing                 #
+##########################################
+@app.route('/test-func', methods=['POST'])
+def testFunc():
+    print(get_user())
+    return jsonify({"message": "Success"})
 
 
 ##########################################
