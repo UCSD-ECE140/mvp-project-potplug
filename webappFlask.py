@@ -247,6 +247,15 @@ def get_incidents():
 
     return jsonify(formatted_incidents)
 
+
+@app.route("/api/potholes")
+def get_potholes():
+    """ Gets All Incidents From Database, Returning a Formatted List of Incidents """
+    # Fetch all incidents from the database
+    potholes = db.get_all_potholes()
+
+    return jsonify(potholes)
+
 # Delete Incident - Probably not used
 @app.route("/api/incidents/<int:id>", methods=["DELETE"])
 def delete_incident(id):
