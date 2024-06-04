@@ -202,16 +202,16 @@ def messageEmergencyContact(location, userInfo):
 def speedbumpDetected(loc, incident, user_id, date, time, severity, readings):
     return {"message" : "Need to add speedbump functionality later."}
 
-# Sends message to emergency contact and adds incident to database
+# Sends message to emergency contact and adds incident to database - Severity 0 to 5 for now.
 def crashDetected(loc, incident, user_id, date, time, severity, readings):
     messageEmergencyContact(loc, user_id)
-    db.report_incident(loc[0], loc[1], user_id[0], date, time, severity, incident)
+    db.report_incident(loc[0], loc[1], user_id[0], date, time, severity * 5, incident)
     return {"Worked Successfully"}
 
 # Formats Incident Type Based off Of Incident Data
 # NOTE: We may want to 
 def format_incident(incident_data):
-    id, lat, lon, severity, date, time, readings_id, incident_type = incident_data
+    id, lat, lon, user_id, date, time, severity, incident_type = incident_data
     loc_sample = (float(lat), float(lon))
 
     incident_description = {
@@ -236,11 +236,9 @@ def format_incident(incident_data):
 ##########################################
 
 # Get All Incidents & Format From Database
-""" Gets All Incidents From Database, Returning a Formatted List of Incidents
-Test
-"""
 @app.route("/api/incidents")
 def get_incidents():
+    """ Gets All Incidents From Database, Returning a Formatted List of Incidents """
     # Fetch all incidents from the database
     incidents = db.get_all_incidents()
     
@@ -249,7 +247,7 @@ def get_incidents():
 
     return jsonify(formatted_incidents)
 
-# Delete Incident
+# Delete Incident - Probably not used
 @app.route("/api/incidents/<int:id>", methods=["DELETE"])
 def delete_incident(id):
     db.delete_pothole(id)
@@ -258,14 +256,32 @@ def delete_incident(id):
 # Gets the user info
 @app.route("/api/getUserInfo/")
 def get_user():
+    ''' Returns Current User Details:
+
+    (unique_user_id, username, emergency_contact_name, emergency_contact_phone, emergency_contact_carrier, user_phone, user_carrier, sensitivity, city_government) 
+    '''
     try:
         return db.get_user(getCurrentUserIdentifier())
     except:
         return {"message": "Had error"}
 
-# Adds the user info
+# Updates the user info
 @app.route("/api/updateUser/", methods=["POST"])
 def update_user():
+    ''' Call To Update User:
+    
+    Post From Form:
+        'emergency_contact_name' (String) : Max 255 Char Name
+        'emergency_contact_phone' (String) : (xxx)-xxx-xxxx - must be American
+        'emergency_contact_carrier' (Long) : att, tmobile, sprint, verizon 
+        'user_phone' : (xxx)-xxx-xxxx - must be American
+        'user_carrier' : att, tmobile, sprint, verizon 
+        'user_name' : Max 255 Char Name
+        'sensitivity' (float) : 0 to 1 
+        'user_city' (String) : Max 255 Chars
+
+    Currently used in settings. Can Update/Change If Necessary
+    '''
 
     # Check if user exists: This will need to be changed to the get method from database.
     user = get_user() 
@@ -296,6 +312,16 @@ def update_user():
 # Calls Respective Incident Type In Case We Need It:
 @app.route("/api/addIncident/", methods=["POST"])
 def type_of_incident(loc, incident, user, severity, readings):
+    ''' Call To Add & Enact Any Incident (Pothole, Speedbump, or Crash):
+    
+    Parameters:
+        loc (tuple): (longitude, latitude)
+        incident (string): Should be either "Pothole", "Speedbump", or "Crash"
+        user (any): Currently not used.
+        severity (float): any number from 0 to 1.
+        readings (tuple): (length, depth, all other information)
+    '''
+
     date = datetime.datetime.now().date()
     time = datetime.datetime.now().time()
     user_id = get_user()
@@ -312,10 +338,12 @@ def type_of_incident(loc, incident, user, severity, readings):
 ##########################################
 #                Testing                 #
 ##########################################
+
 @app.route('/test-func', methods=['POST'])
 def testFunc():
-    print(get_user())
+    type_of_incident((34.1, 34.1), "Crash", getCurrentUserIdentifier(), .8, (None))
     return jsonify({"message": "Success"})
+
 
 
 ##########################################

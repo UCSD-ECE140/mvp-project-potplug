@@ -55,6 +55,18 @@ def delete_pothole(pothole_id):
         connection.close()
     return {"message": "Pothole deleted successfully."}
 
+# Delete a incident by ID
+def delete_incident(incident_id):
+    connection = connect_to_database()
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("DELETE FROM incident_reports WHERE id = %s", (incident_id,))
+        connection.commit()
+    finally:
+        connection.close()
+    return {"message": "User deleted successfully."}
+
+
 # Update user information
 def update_user(user_id, username=None, emergency_contact_name=None, emergency_contact_phone=None, emergency_contact_carrier=None, user_phone=None, user_carrier=None, sensitivity=None, city_government=None):
     connection = connect_to_database()
