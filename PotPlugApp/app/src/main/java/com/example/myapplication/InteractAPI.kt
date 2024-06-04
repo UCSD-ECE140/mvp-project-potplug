@@ -6,93 +6,97 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 import java.io.InputStream
 
-enum class DataType{
-    Accelx, Accely, Accelz, GYT, Rotx, Roty, Rotz, End, None
-}
-
-public class InteractAPI : Runnable {
+public class InteractAPI(aStream: InputStream) : Runnable {
 
 
-    lateinit var theStream: InputStream
+    var theStream: InputStream = aStream
     var incoming : String = ""
     var theData : String = ""
-    var currType: DataType = DataType.None
     var incident : String = ""
     var severity : String = ""
+    var dataMap : MutableMap<String, List<Float>> = mutableMapOf()
 
-
-    constructor(aStream: InputStream) {
-        theStream = aStream
-    }
 
     fun uploadData(){
-        var loc : List<String> = listOf("", "")
-        var user : String = "PlaceholderName"
+        try {
+            var loc: List<String> = listOf("Test", "Location")
+            var user: String = "Henri Schulz"
 
-
-        var postBody : String = "{loc: " + loc + ", incident: " + incident + ", user: " + user + ", severity: " + severity + "readings: {" + theData + "}}"
-        val request = Request.Builder()
-                    .url("/addIncident")
-                    .post(postBody.toRequestBody())
-                    .build()
-        val client = OkHttpClient()
-        client.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) throw IOException("Unexpected code $response")
-            else {
-                Log.d("HTML response", response.body.toString())
+            var postBody: String =
+                "{loc: " + loc + ", incident: " + incident + ", user: " + user + ", severity: " + severity + "readings: {" + theData + "}}"
+            val request = Request.Builder()
+                .url("https://arosing.pythonanywhere.com/api/addIncident")
+                .post(postBody.toRequestBody())
+                .build()
+            val client = OkHttpClient()
+            client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) throw IOException("Unexpected code $response")
+                else {
+                    Log.d("HTML response", response.body.toString())
+                }
             }
         }
-    }
-
-    fun process(){
-        if(!incoming.isEmpty()){
-            incoming = incoming.split(":").last()
-            val data: List<Float> = incoming.split(",").map{ it.trim().replace("END","").trim().toFloat()}
-
-            //Perform processing on data
+        catch (e: Exception){
+            Log.e("HTTP Error", e.toString())
         }
     }
 
-    fun tokenize(header: String){
-        when(header){
-            "ACX" -> currType = DataType.Accelx
-            "ACY" -> currType = DataType.Accely
-            "ACZ" -> currType = DataType.Accelz
-            "GYT" -> currType = DataType.GYT
-            "RTX" -> currType = DataType.Rotx
-            "RTY" -> currType = DataType.Roty
-            "RTZ" -> currType = DataType.Rotz
-            "End" -> currType = DataType.None
-            else -> currType = DataType.None
+    fun process() : Boolean {
+        Log.d("BT Data", incoming)
+        if(incoming.isNotEmpty()){
+
+            val data : List<String> = incoming.trim().split("\n")
+
+            // Parse the data into a map
+            for (row in data) {
+                if (row.trim().split(":").size == 3) {
+                    val (row_header, _, row_body) = row.split(":")
+                    dataMap[row_header] = row_body.split(",").map { it.toFloat() }
+                } else {
+                    Log.w("Data", "Row $row is not formatted correctly")
+                }
+            }
+
+            Log.d("Data", dataMap.toString())
+            Log.d("Data", "Length: ${dataMap.size}")
+
+            // Classify the incident
+            val process = Process(dataMap)
+            val classification = process.classifyIncident()
+            if(classification == null){
+                Log.d("Incident", "No incident detected")
+                return false
+            }
+            this.incident = classification.first
+            this.severity = classification.second
+
+            Log.d("Incident", incident)
+            Log.d("Severity", severity.toString())
+            return true
         }
-        //Tokenize the 3 letter header, set the current type
+        return false
     }
 
     fun receiveData(): String {
         val buffer = ByteArray(1024)
         val bytes: Int = theStream.read(buffer)
-        var message: String = String(buffer,0,bytes)
+        val message: String = String(buffer,0,bytes)
         return message
     }
 
     override fun run(){
         while(true){
-            var theMessage: String = receiveData()
-            if(theMessage!=null) {
-                val header: String = theMessage.substring(0,3)
-                if(null == header.toDoubleOrNull()){
-                    tokenize(header)
-                    theMessage = theMessage.substring(3)
-                    process()
-                    if(!incoming.isEmpty()) theData.plus(incoming + "], ")
-                    theData += header +": ["
+            val theMessage: String = receiveData()
+            if(theMessage.isNotEmpty()){
+                if(theMessage.contains("END")){
+                    incoming += theMessage.substring(0, theMessage.indexOf("END"))
+                    if(process()) {
+                        uploadData()
+                    }
                     incoming = ""
                 }
-                if(currType == DataType.End){
-                    if(incident.isNotBlank() || severity.isNotBlank()){
-                    uploadData()
-                    theData = ""
-                    }
+                if(theMessage.contains("BGD")){
+                    incoming = theMessage.substring(theMessage.indexOf("BGD") + 3, theMessage.length)
                 }
                 else{
                     incoming += theMessage

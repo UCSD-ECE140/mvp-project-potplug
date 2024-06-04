@@ -15,6 +15,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.renderscript.ScriptGroup.Input
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -24,6 +25,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -35,7 +37,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.internal.updateLiveLiteralValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -49,6 +53,8 @@ import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.myapplication.ui.theme.MyApplicationTheme
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.io.InputStream
@@ -61,7 +67,6 @@ class MainActivity : ComponentActivity() {
     lateinit var anInputStream: InputStream
     private var deviceList = mutableStateListOf<String>()
     private val BT_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
-
 
     //IMPORTANT: Find and enter the address of the Bluetooth device you want to connect here.
     private val DEVICE_ADDRESS = "D4:8A:FC:9E:50:7E"
@@ -84,7 +89,6 @@ class MainActivity : ComponentActivity() {
 
         val bluetoothManager: BluetoothManager = getSystemService(BluetoothManager::class.java)
         bluetoothAdapter = bluetoothManager.getAdapter()
-
 
         if (bluetoothAdapter == null) {
             println("Bluetooth is not supported on this device")
@@ -233,7 +237,7 @@ fun theHeader(){
         modifier = Modifier
             .height(40.dp)
             .fillMaxWidth()
-            .background(Color.hsv( 210F, .29F, .29F))
+            .background(Color.hsv(210F, .29F, .29F))
     ) {
         Text(
             text = "PotPlug",
@@ -277,9 +281,15 @@ fun DeviceList(modifier: Modifier = Modifier,theList: SnapshotStateList<String> 
 
             }
         }
+        LazyColumn {
+
+        }
+
+
     }
 
 }
+
 
 @SuppressLint("UnrememberedMutableState")
 @Preview(showBackground = true)
