@@ -3,6 +3,7 @@ package com.example.myapplication
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
@@ -15,6 +16,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.renderscript.ScriptGroup.Input
+import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -64,7 +66,7 @@ import java.util.UUID
 class MainActivity : ComponentActivity() {
     lateinit var bluetoothAdapter:BluetoothAdapter
     lateinit var bluetoothSocket: BluetoothSocket
-    lateinit var anInputStream: InputStream
+    var anInputStream: InputStream? = null
     private var deviceList = mutableStateListOf<String>()
     private val BT_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
 
@@ -81,7 +83,9 @@ class MainActivity : ComponentActivity() {
             println("grrrr")
         }
     }
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
@@ -118,12 +122,14 @@ class MainActivity : ComponentActivity() {
 
         StartBT(anInputStream)
 
-        
+
 
         // Start device discovery
 //        bluetoothAdapter.startDiscovery()
 
     }
+
+
     override fun onResume() {
         super.onResume()
         registerReceiver(receiver, IntentFilter(BluetoothDevice.ACTION_FOUND))
@@ -218,15 +224,29 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+//    fun showIncidentDialog(incident: String) {
+//        val builder = AlertDialog.Builder(this)
+//        builder.setTitle("Incident Detected")
+//        builder.setMessage(incident)
+//        builder.setPositiveButton("OK") { dialog, _ ->
+//            dialog.dismiss()
+//        }
+//        builder.show()
+//    }
 
 
 }
 
 
 
-fun StartBT(anInputStream: InputStream) {
-    var aThread = Thread(InteractAPI(anInputStream))
-    aThread.start()
+fun StartBT(anInputStream: InputStream?) {
+    if (anInputStream == null) {
+        Log.e("Bluetooth", "InputStream is null")
+    }
+    else {
+        var aThread = Thread(InteractAPI(anInputStream))
+        aThread.start()
+    }
 }
 
 
