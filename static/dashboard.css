@@ -104,3 +104,20 @@ h2 {
     font-size: 16px; /* Adjusted font size */
     color: #f0f0f0; /* White-ish grey color */
 }
+
+/* New styles for the added <p> element */
+p {
+    color: #f0f0f0; /* White-ish grey color */
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px; /* Adjusted font size */
+    margin: 20px; /* Margin to match other text elements */
+}
+
+p a {
+    color: #c0ddf0; /* Link color */
+    text-decoration: none; /* Remove underline */
+}
+
+p a:hover {
+    text-decoration: underline; /* Underline on hover */
+}
