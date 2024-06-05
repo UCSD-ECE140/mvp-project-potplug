@@ -1,32 +1,102 @@
 <!DOCTYPE html>
 <html>
+<head>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    #googleMap {
+      height: 90%;
+      width: 100%;
+    }
+    #controls {
+      height: 10%;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #addressInput {
+      width: 300px;
+      padding: 10px;
+      font-size: 16px;
+    }
+    #getDirectionsButton {
+      padding: 10px;
+      font-size: 16px;
+    }
+  </style>
+</head>
 <body>
 
-<h1 style="margin: 0 auto;">Pothole Map</h1>
-
-<div id="googleMap" style="width: 350px; height: 700px; margin: 0 auto;"></div>
+<div id="controls">
+  <input type="text" id="addressInput" placeholder="Enter destination address">
+  <button id="getDirectionsButton">Get Directions</button>
+</div>
+<div id="googleMap"></div>
 
 <script>
-function myMap() {
+async function myMap() {
   var mapProp = {
     center: new google.maps.LatLng(32.861016, -117.209321), // Initial center point
     zoom: 14, // Adjusted zoom level for closer view
+    mapTypeControl: true,
+    mapTypeControlOptions: {
+      style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+      position: google.maps.ControlPosition.TOP_CENTER,
+    },
+    zoomControl: true,
+    zoomControlOptions: {
+      position: google.maps.ControlPosition.LEFT_CENTER,
+    },
+    streetViewControl: true,
+    streetViewControlOptions: {
+      position: google.maps.ControlPosition.LEFT_TOP,
+    },
+    fullscreenControl: true,
+    fullscreenControlOptions: {
+      position: google.maps.ControlPosition.RIGHT_TOP,
+    }
   };
-  var map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
 
-  // Sample dataset of pothole locations (latitude, longitude pairs)
-  var potholes = [
+  var map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
+  var directionsService = new google.maps.DirectionsService();
+  var directionsRenderer = new google.maps.DirectionsRenderer();
+  directionsRenderer.setMap(map);
+
+  // Fetch pothole data from API
+  const response = await fetch('/api/potholes');  // Adjust the endpoint as needed
+  const potholes = await response.json();
+
+  // Parse the pothole data and create circle markers for each pothole
+  potholes.forEach(function(pothole) {
+    console.log(parseFloat(pothole[1]) + "" + parseFloat(pothole[2]));
+    var potholeCircle = new google.maps.Circle({
+      strokeColor: '#FF0000',
+      strokeOpacity: 0.8,
+      strokeWeight: 5,
+      fillColor: '#FF0000',
+      fillOpacity: 0.35,
+      map: map,
+      center: new google.maps.LatLng(parseFloat(pothole[1]), parseFloat(pothole[2])),
+      radius: 30 // Adjust the radius of the circle to represent the area to avoid
+    });
+  });
+
+  // Hardcoded potholes for reference (remove if not needed)
+  var hardcodedPotholes = [
     { lat: 32.880610, lng: -117.243853 },
     { lat: 32.878609, lng: -117.244009 },
     { lat: 32.883981, lng: -117.243850 },
-    { lat: 32.859259, lng: -117.206596},
-    { lat: 32.861016, lng: -117.209321},
-    { lat: 32.853990, lng: -117.204458},
-    // Add more pothole locations as needed
+    { lat: 32.859259, lng: -117.206596 },
+    { lat: 32.861016, lng: -117.209321 },
+    { lat: 32.853990, lng: -117.204458 },
   ];
 
-  // Loop through the potholes array and create circle markers for each pothole
-  potholes.forEach(function(pothole) {
+  // Loop through the hardcoded potholes array and create circle markers for each pothole
+  hardcodedPotholes.forEach(function(pothole) {
     var potholeCircle = new google.maps.Circle({
       strokeColor: '#FF0000',
       strokeOpacity: 0.8,
@@ -35,7 +105,7 @@ function myMap() {
       fillOpacity: 0.35,
       map: map,
       center: new google.maps.LatLng(pothole.lat, pothole.lng),
-      radius: 15 // Adjust the radius of the circle as needed
+      radius: 30 // Adjust the radius of the circle as needed
     });
   });
 
@@ -55,6 +125,36 @@ function myMap() {
         fillOpacity: 0.8,
         strokeColor: '#00F',
         strokeWeight: 2
+      }
+    });
+
+    // Event listener for the Get Directions button
+    document.getElementById("getDirectionsButton").addEventListener("click", function() {
+      var destination = document.getElementById("addressInput").value;
+      if (destination) {
+        var waypoints = potholes.map(pothole => ({
+          location: new google.maps.LatLng(parseFloat(pothole[1]), parseFloat(pothole[2])),
+          stopover: false
+        }));
+
+        var request = {
+          origin: userLatLng,
+          destination: destination,
+          waypoints: waypoints,
+          optimizeWaypoints: true,
+          travelMode: 'DRIVING',
+          avoidTolls: true, // Add other avoid options if needed
+        };
+
+        directionsService.route(request, function(result, status) {
+          if (status == 'OK') {
+            directionsRenderer.setDirections(result);
+          } else {
+            alert("Directions request failed due to " + status);
+          }
+        });
+      } else {
+        alert("Please enter a destination address.");
       }
     });
   }

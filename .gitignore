@@ -14,3 +14,4 @@ venv
 .externalNativeBuild
 .cxx
 local.properties
+databaseSample/__pycache__

@@ -157,6 +157,7 @@ def settings():
     return render_template("settings.html")
 
 @app.route("/map")
+@login_required
 def map():
     return render_template("map.html")
 
@@ -246,6 +247,15 @@ def get_incidents():
     formatted_incidents = [format_incident(incident) for incident in incidents]
 
     return jsonify(formatted_incidents)
+
+
+@app.route("/api/potholes")
+def get_potholes():
+    """ Gets All Incidents From Database, Returning a Formatted List of Incidents """
+    # Fetch all incidents from the database
+    potholes = db.get_all_potholes()
+
+    return jsonify(potholes)
 
 # Delete Incident - Probably not used
 @app.route("/api/incidents/<int:id>", methods=["DELETE"])
