@@ -91,10 +91,10 @@ def getUserName():
     except:
         return {"message": "Had error"}
 
-# TODO: Implement Once database is done
 def add_user(userIdentifier, username):
+    db.add_user(userIdentifier, username)
     print("Adding User", userIdentifier, username) # Example is google-oauth2|117344724568847202933
-    return {"message" : "Not implemented yet."}
+    return {"message" : "Successful"}
 
 # Redirects to Auth0 Login Page
 @app.route("/login")
