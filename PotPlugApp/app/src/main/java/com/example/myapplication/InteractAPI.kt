@@ -49,7 +49,7 @@ public class InteractAPI(aStream: InputStream?) : Runnable {
             }
         }
 
-        val response: HttpResponse = client.post("https://arosing.pythonanywhere.com/api/addIncident") {
+        val response: HttpResponse = client.post("http://172.21.16.1:6543/api/addIncident/") {
             contentType(ContentType.Application.Json)
             body = postBody
         }

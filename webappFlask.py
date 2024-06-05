@@ -169,7 +169,7 @@ def map():
 
 # Reports Pothole 
 def potholeDetected(loc, incident, user_id, severity, readings):
-    db.report_pothole(loc[0], loc[1], readings[0], readings[1], readings[2:], severity, date_time=None)
+    db.report_pothole(loc[0], loc[1], readings[0], readings[1], severity, date_time=None) # TODO: Update - was using incorrect number of arguments.
 
 # Should probably be using a user and then get userInfo characteristics from that.
 # Can switch to twilio potentially but need to find carrier
@@ -320,8 +320,8 @@ def update_user():
     return redirect(url_for('dashboard'))
 
 # Calls Respective Incident Type In Case We Need It:
-@app.route("/api/addIncident/", methods=["POST"])
-def type_of_incident(loc, incident, user, severity, readings):
+@app.route("/api/addIncident/", methods=["POST"]) # TODO: Updated route to make it work
+def type_of_incident():
     ''' Call To Add & Enact Any Incident (Pothole, Speedbump, or Crash):
     
     Parameters:
@@ -331,17 +331,21 @@ def type_of_incident(loc, incident, user, severity, readings):
         severity (float): any number from 0 to 1.
         readings (tuple): (length, depth, all other information)
     '''
-
-    date = datetime.datetime.now().date()
-    time = datetime.datetime.now().time()
+    data = request.get_json()
+    loc = data['loc']
+    incident = data['incident']
+    severity = data['severity']
+    readings = data['readings']
     user_id = get_user()
 
     if(incident == "Pothole"):
-        potholeDetected(loc, incident, user_id, date, time, severity, readings)
+        potholeDetected(loc, incident, user_id, severity, readings)
     if(incident == "Speedbump"):
-        speedbumpDetected(loc, incident, user_id, date, time, severity, readings)
+        speedbumpDetected(loc, incident, user_id, severity, readings)
     if(incident == "Crash"):
-        crashDetected(loc, incident, user_id, date, time, severity, readings)
+        crashDetected(loc, incident, user_id, severity, readings)
+    
+    return jsonify({"message": "Success"})
 
 
 

@@ -260,7 +260,7 @@ fun theHeader(){
             .background(Color.hsv(210F, .29F, .29F))
     ) {
         Text(
-            text = "PotPlug",
+            text = "Swerve",
             fontFamily = FontFamily.Serif,
             fontWeight = FontWeight.Bold,
             color = Color.White,
