@@ -120,7 +120,8 @@ class MainActivity : ComponentActivity() {
         }
 
 
-        StartBT(anInputStream)
+        StartBT(anInputStream, this)
+
 
 
 
@@ -239,12 +240,12 @@ class MainActivity : ComponentActivity() {
 
 
 
-fun StartBT(anInputStream: InputStream?) {
+fun StartBT(anInputStream: InputStream?, anActivity: Activity) {
     if (anInputStream == null) {
         Log.e("Bluetooth", "InputStream is null")
     }
     else {
-        var aThread = Thread(InteractAPI(anInputStream))
+        var aThread = Thread(InteractAPI(anInputStream, anActivity))
         aThread.start()
     }
 }

@@ -21,11 +21,22 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import android.app.Activity
+import android.content.Context
+import android.location.Criteria
+import android.location.LocationManager
+import android.location.LocationRequest
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat.getSystemService
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 
 
-public class InteractAPI(aStream: InputStream?) : Runnable {
+public class InteractAPI(aStream: InputStream?, anActivity: Activity) : Runnable {
 
-
+    var theActivity: Activity = anActivity
+    val fusedLocationProviderClient: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(theActivity)
     var theStream: InputStream = aStream!!
     var incoming : String = ""
     var theData : String = ""
@@ -102,6 +113,8 @@ public class InteractAPI(aStream: InputStream?) : Runnable {
             }
             this.incident = classification.first
             this.severity = classification.second
+
+            theActivity.runOnUiThread { Toast.makeText(theActivity, "Incident Detected\n" + this.incident + " - " + this.severity, Toast.LENGTH_LONG).show() }
             
             Log.d("Incident", incident)
             Log.d("Severity", severity.toString())
