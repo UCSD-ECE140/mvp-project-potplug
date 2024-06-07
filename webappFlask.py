@@ -92,9 +92,13 @@ def getUserName():
         return {"message": "Had error"}
 
 def add_user(userIdentifier, username):
-    db.add_user(userIdentifier, username)
-    print("Adding User", userIdentifier, username) # Example is google-oauth2|117344724568847202933
-    return {"message" : "Successful"}
+    try:
+        db.add_user(userIdentifier, username)
+        print("Adding User", userIdentifier, username) # Example is google-oauth2|117344724568847202933
+        return {"message" : "Successful"}
+    except:
+        print("User already exists")
+        return {"message" : "Failed to add user."}
 
 # Redirects to Auth0 Login Page
 @app.route("/login")
