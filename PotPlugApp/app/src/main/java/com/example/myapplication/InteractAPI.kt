@@ -46,11 +46,11 @@ public class InteractAPI(aStream: InputStream?, anActivity: Activity) : Runnable
 
     @Serializable
     data class Incident(
-        val loc: Pair<Double, Double>,
+        val loc: List<Double>,
         val incident: String,
         val user: String,
         val severity: Double,
-        val readings: Map<String, List<Float>>
+        val readings : List<Double> // [length, depth]
     )
 
     suspend fun post(postBody : Incident) : String {
@@ -60,7 +60,7 @@ public class InteractAPI(aStream: InputStream?, anActivity: Activity) : Runnable
             }
         }
 
-        val response: HttpResponse = client.post("http://172.21.16.1:6543/api/addIncident/") {
+        val response: HttpResponse = client.post("https://arosing.pythonanywhere.com/api/addIncident/") {
             contentType(ContentType.Application.Json)
             body = postBody
         }
@@ -69,15 +69,18 @@ public class InteractAPI(aStream: InputStream?, anActivity: Activity) : Runnable
             Log.e("HTTP Error", response.toString())
             return response.readText()
         }
-        Log.d("Response", response.readText())
+        Log.d("HTTP Response", response.readText())
         return response.readText()
     }
 
     suspend fun uploadData(){
         try {
-            val loc: Pair<Double, Double> = Pair(32.8812, -117.2344)
+            val loc: List<Double> = listOf(32.8812, -117.2344)
             val user: String = "Henri Schulz"
-            val postBody: Incident = Incident(loc, incident, user, severity.toDouble(), dataMap)
+            val length : Double = 1.0
+            val depth : Double = 5.0
+            val postBody: Incident = Incident(loc, incident, user, severity.toDouble(), listOf(length, depth))
+            Log.d("Post body", postBody.toString())
             post(postBody)
         } catch (e : Exception) {
             Log.e("HTTP Error", e.toString())
@@ -124,10 +127,16 @@ public class InteractAPI(aStream: InputStream?, anActivity: Activity) : Runnable
     }
 
     fun receiveData(): String {
-        val buffer = ByteArray(1024)
-        val bytes: Int = theStream.read(buffer)
-        val message: String = String(buffer,0,bytes)
-        return message
+        try {
+            val buffer = ByteArray(1024)
+            val bytes: Int = theStream.read(buffer)
+            val message: String = String(buffer, 0, bytes)
+            return message
+        }
+        catch (e : Exception){
+            Log.e("Bluetooth Error", e.toString())
+        }
+        return ""
     }
 
     override fun run(){

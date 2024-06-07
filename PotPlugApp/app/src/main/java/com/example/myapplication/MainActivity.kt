@@ -185,7 +185,7 @@ class MainActivity : ComponentActivity() {
             bluetoothSocket = device.createRfcommSocketToServiceRecord(BT_UUID)
             bluetoothSocket.connect()
             anInputStream = bluetoothSocket.inputStream
-        } catch(e: IOException) {
+        } catch(e : Exception) {
             e.printStackTrace()
             // Handle connection errors
         }
