@@ -8,20 +8,27 @@
       padding: 0;
     }
     #googleMap {
-      height: 90%;
+      height: 100%;
       width: 100%;
     }
     #controls {
-      height: 10%;
-      width: 100%;
+      position: absolute;
+      top: 10px;
+      left: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
+      background-color: white;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      z-index: 5;
     }
     #addressInput {
       width: 300px;
       padding: 10px;
       font-size: 16px;
+      margin-right: 10px;
     }
     #getDirectionsButton {
       padding: 10px;
@@ -132,18 +139,10 @@ async function myMap() {
     document.getElementById("getDirectionsButton").addEventListener("click", function() {
       var destination = document.getElementById("addressInput").value;
       if (destination) {
-        var waypoints = potholes.map(pothole => ({
-          location: new google.maps.LatLng(parseFloat(pothole[1]), parseFloat(pothole[2])),
-          stopover: false
-        }));
-
         var request = {
           origin: userLatLng,
           destination: destination,
-          waypoints: waypoints,
-          optimizeWaypoints: true,
           travelMode: 'DRIVING',
-          avoidTolls: true, // Add other avoid options if needed
         };
 
         directionsService.route(request, function(result, status) {
@@ -151,6 +150,7 @@ async function myMap() {
             directionsRenderer.setDirections(result);
           } else {
             alert("Directions request failed due to " + status);
+            document.getElementById("addressInput").value = ''; // Clear the input field
           }
         });
       } else {
