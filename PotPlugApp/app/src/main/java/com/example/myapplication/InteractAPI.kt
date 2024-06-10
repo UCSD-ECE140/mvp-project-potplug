@@ -1,10 +1,6 @@
 package com.example.myapplication
 import android.util.Log
 import android.widget.Toast
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
-import java.io.IOException
 import java.io.InputStream
 import io.ktor.client.*
 import io.ktor.client.request.*
@@ -17,32 +13,36 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import android.app.Activity
-import android.content.Context
-import android.location.Criteria
-import android.location.LocationManager
-import android.location.LocationRequest
-import android.os.Build
-import androidx.annotation.RequiresApi
-import androidx.core.content.ContextCompat.getSystemService
+import android.content.pm.PackageManager
+import android.location.Location
+import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.tasks.Task
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
+import android.Manifest
+import android.annotation.SuppressLint
+import androidx.core.app.ActivityCompat
 
 
 public class InteractAPI(aStream: InputStream?, anActivity: Activity) : Runnable {
 
     var theActivity: Activity = anActivity
-    val fusedLocationProviderClient: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(theActivity)
     var theStream: InputStream = aStream!!
     var incoming : String = ""
     var theData : String = ""
     var incident : String = ""
-    var severity : String = ""
+    var severity : Int = 0
     var dataMap : MutableMap<String, List<Float>> = mutableMapOf()
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+
+    init {
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(theActivity)
+    }
 
     @Serializable
     data class Incident(
@@ -74,16 +74,20 @@ public class InteractAPI(aStream: InputStream?, anActivity: Activity) : Runnable
     }
 
     suspend fun uploadData(){
+        Log.d("Upload", "Uploading data")
         try {
-            val loc: List<Double> = listOf(32.8812, -117.2344)
-            val user: String = "Henri Schulz"
+            Log.d("My Location", "Getting location")
+            val location = requestLocation()
+            val loc: List<Double> = listOf(location!!.latitude, location.longitude)
+            Log.d("My Location for post", loc.toString())
+            val user: String = "henritschulz"
             val length : Double = 1.0
             val depth : Double = 5.0
             val postBody: Incident = Incident(loc, incident, user, severity.toDouble(), listOf(length, depth))
             Log.d("Post body", postBody.toString())
             post(postBody)
         } catch (e : Exception) {
-            Log.e("HTTP Error", e.toString())
+            Log.e("HTTP Error", e.stackTraceToString())
         }
     }
 
@@ -125,7 +129,7 @@ public class InteractAPI(aStream: InputStream?, anActivity: Activity) : Runnable
             return true
         }
         catch (e : Exception){
-            Log.e("Process Error", e.toString())
+            Log.e("Process Error", e.stackTraceToString())
         }
         return false
     }
@@ -167,7 +171,51 @@ public class InteractAPI(aStream: InputStream?, anActivity: Activity) : Runnable
         }
     }
 
+    fun hasLocationPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            theActivity,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+            theActivity,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+    }
 
+    fun requestLocationPermission() {
+        ActivityCompat.requestPermissions(
+            theActivity,
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ),
+            120
+        )
+    }
+    @SuppressLint("MissingPermission")
+    suspend fun requestLocation(): Location? {
+        return withContext(Dispatchers.IO) {
+            try {
+                Log.d("My Location", "Requesting location")
+                if (hasLocationPermission()) {
+                    Log.d("My Location", "Permission granted")
+                    val locationResult: Task<Location> = fusedLocationClient.lastLocation
+                    Log.d("My Location", "Awaiting location")
+                    val location: Location = locationResult.await()
+                    Log.d("My Location", "Location received")
+                    Log.d("My Location", location.toString())
+                    location
+                }
+                else {
+                    Log.d("My Location", "No permission yet")
+                    requestLocationPermission()
+                    null
+                }
+            } catch (e: Exception) {
+                Log.e("Location Error", e.toString())
+                null
+            }
+        }
+    }
 
 
 }

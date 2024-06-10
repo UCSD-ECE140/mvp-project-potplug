@@ -221,6 +221,12 @@ class MainActivity : ComponentActivity() {
             ActivityCompat.requestPermissions(this@MainActivity, arrayOf(Manifest.permission.BLUETOOTH_CONNECT),REQ_PERMISSION_CODE)
             return
         }
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+            ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            val REQ_PERMISSION_CODE = 112
+            ActivityCompat.requestPermissions(this@MainActivity, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),REQ_PERMISSION_CODE)
+            return
+        }
     }
 
 //    fun showIncidentDialog(incident: String) {
@@ -294,7 +300,7 @@ fun DeviceList(modifier: Modifier = Modifier,theList: SnapshotStateList<String> 
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Button(onClick = {}) {
-                        Text("BeginReceiving Data")
+                        Text("Begin Receiving Data")
                     }
                 }
 

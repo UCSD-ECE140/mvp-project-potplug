@@ -33,9 +33,9 @@ class Process (map : MutableMap<String, List<Float>>) {
     }
 
 
-    fun detectPothole(): Pair<String, String>? {
+    fun detectPothole(): Pair<String, Int>? {
         return if (peaks["ACZ"]!!.indexOf(1) > peaks["ACZ"]!!.indexOf(-1) || peaks["DIS"]!!.indexOf(1) > peaks["DIS"]!!.indexOf(-1)){
-            Pair("Pothole", "Pothole detected")
+            Pair("Pothole", peaks["ACZ"]!!.count{it != 0} + peaks["DIS"]!!.count{it != 0})
         } else {
             null
         }
@@ -67,43 +67,43 @@ class Process (map : MutableMap<String, List<Float>>) {
         }
     }
 
-    fun detectSpeedBump() : Pair<String, String>? {
+    fun detectSpeedBump() : Pair<String, Int>? {
         return if (peaks["ACZ"]!!.indexOf(1) < peaks["ACZ"]!!.indexOf(-1) || peaks["DIS"]!!.indexOf(1) < peaks["DIS"]!!.indexOf(-1)){
-            Pair("Speedbump", "Speedbump detected")
+            Pair("Speedbump", peaks["ACZ"]!!.count{it != 0} + peaks["DIS"]!!.count{it != 0})
         } else {
             null
         }
     }
 
-    fun detectCrash() : Pair<String, String>? {
+    fun detectCrash() : Pair<String, Int>? {
         for (key in listOf("ACX", "ACY", "ACZ")) {
             for (value in data[key]!!) {
                 if (abs(value) > 100) {
-                    return Pair("Crash", "Crash detected")
+                    return Pair("Crash", peaks["ACZ"]!!.count{it != 0} + peaks["DIS"]!!.count{it != 0})
                 }
             }
         }
         return null
     }
 
-    fun classifyIncident() : Pair<String, String>? {
+    fun classifyIncident() : Pair<String, Int>? {
         smoothData()
         findPeaks()
         Log.d("Peaks", peaks.toString())
         val accident = detectCrash()
 
         if (accident != null) {
-            Log.d("Classification", "Crash detected")
+            Log.d("Classification", accident.toString())
             return accident
         }
         val pothole = detectPothole()
         if (pothole != null) {
-            Log.d("Classification", "Pothole detected")
+            Log.d("Classification", pothole.toString())
             return pothole
         }
         val speedBump = detectSpeedBump()
         if (speedBump != null) {
-            Log.d("Classification", "Speed bump detected")
+            Log.d("Classification", speedBump.toString())
             return speedBump
         }
         Log.d("Classification", "None")
