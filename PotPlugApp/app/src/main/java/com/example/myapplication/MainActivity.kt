@@ -76,11 +76,9 @@ class MainActivity : ComponentActivity() {
         if (result.resultCode == Activity.RESULT_OK) {
             // Bluetooth is enabled, proceed with further actions
             Toast.makeText(this, "Bluetooth is enabled", Toast.LENGTH_SHORT).show()
-            println("yay?")
         } else {
             // User chose not to enable Bluetooth
             Toast.makeText(this, "Bluetooth not enabled", Toast.LENGTH_SHORT).show()
-            println("grrrr")
         }
     }
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -186,7 +184,7 @@ class MainActivity : ComponentActivity() {
             bluetoothSocket.connect()
             anInputStream = bluetoothSocket.inputStream
         } catch(e : Exception) {
-            e.printStackTrace()
+            Log.d("Bluetooth", e.toString())
             // Handle connection errors
         }
     }
@@ -296,7 +294,7 @@ fun DeviceList(modifier: Modifier = Modifier,theList: SnapshotStateList<String> 
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Button(onClick = {}) {
-                        Text("Begin Receiving Data")
+                        Text("BeginReceiving Data")
                     }
                 }
 

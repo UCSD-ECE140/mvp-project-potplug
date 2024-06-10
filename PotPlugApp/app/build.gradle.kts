@@ -82,5 +82,6 @@ dependencies {
     implementation("io.ktor:ktor-client-serialization:1.6.7")
     implementation("io.ktor:ktor-client-android:1.6.7")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
+    implementation(libs.play.services.location)
     apply(plugin = "kotlinx-serialization")
 }

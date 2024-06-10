@@ -32,7 +32,9 @@ struct Comms
     void end_line();
 
 #if BT
-    BluetoothSerial Serial;
+    BluetoothSerial Ser;
+#else
+#define Serial Ser
 
 #endif
 

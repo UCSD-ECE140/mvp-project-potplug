@@ -37,6 +37,8 @@ void setup()
     g_sensor.setup();
     pinMode(echoPin, INPUT);
     pinMode(triggerPin, OUTPUT);
+        Serial.println("Setup done");
+
 
     // Set data_process semaphore to 0
     data_process = xSemaphoreCreateBinary();

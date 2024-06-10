@@ -89,6 +89,7 @@ public class InteractAPI(aStream: InputStream?, anActivity: Activity) : Runnable
 
 
     fun process() : Boolean {
+        try {
         Log.d("BT Data", incoming)
         if(incoming.isNotEmpty()){
 
@@ -98,8 +99,8 @@ public class InteractAPI(aStream: InputStream?, anActivity: Activity) : Runnable
             for (row in data) {
                 if (row.trim().split(":").size == 3) {
                     val (row_header, _, row_body) = row.split(":")
-                    dataMap[row_header] = row_body.split(",").map { it.toFloat() }
-                } else {
+                    dataMap[row_header] = row_body.split(",").map { it.toFloat()}
+                } else
                     Log.w("Data", "Row $row is not formatted correctly")
                 }
             }
@@ -117,11 +118,14 @@ public class InteractAPI(aStream: InputStream?, anActivity: Activity) : Runnable
             this.incident = classification.first
             this.severity = classification.second
 
-            theActivity.runOnUiThread { Toast.makeText(theActivity, "Incident Detected\n" + this.incident + " - " + this.severity, Toast.LENGTH_LONG).show() }
+            theActivity.runOnUiThread { Toast.makeText(theActivity, "Incident Detected\n" + this.incident, Toast.LENGTH_LONG).show() }
             
             Log.d("Incident", incident)
             Log.d("Severity", severity.toString())
             return true
+        }
+        catch (e : Exception){
+            Log.e("Process Error", e.toString())
         }
         return false
     }

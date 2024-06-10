@@ -4,6 +4,9 @@
     if (!gyro.begin()) {
         Serial.println("Failed to set up!");
     }
+    else {
+      Serial.println("Gyro set up successfully!");
+    }
     gyro.setAccelerometerRange(MPU6050_RANGE_8_G);
     gyro.setGyroRange(MPU6050_RANGE_500_DEG);
     gyro.setFilterBandwidth(MPU6050_BAND_21_HZ);
